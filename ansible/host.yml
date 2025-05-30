@@ -1,0 +1,185 @@
+- name: "Create inventory"
+  hosts: localhost
+  gather_facts: false
+  tags:
+    - always
+  tasks:
+    - name: "Create inventory"
+      ansible.builtin.add_host:
+        name: host
+        ansible_host: "{{ lookup('ansible.builtin.file', '../host') }}"
+        ansible_user: "{{ lookup('ansible.builtin.file', '../host_user') }}"
+      when: host is not defined
+- name: "Configure host"
+  hosts: host
+  vars:
+    cloud_image_url: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
+    cloud_image_path: "/var/lib/libvirt/images/base-image.img"
+    cache_path: "/var/www/cache"
+    network: "10.200.0.0/16"
+  tasks:
+    - name: "Install required packages"
+      tags:
+        - pkg
+        - apt
+      ansible.builtin.apt:
+        pkg:
+        - libvirt-daemon-system
+        - libvirt-clients
+        - virtinst
+        - qemu-utils
+        - docker.io
+        - squid-deb-proxy
+        - nginx
+    - name: "LVM"
+      tags:
+        - lvm
+      block:
+      - name: "Create LV for images"
+        become: true
+        community.general.lvol:
+          vg: ubuntu-vg
+          lv: images
+          size: 360G
+          force: true
+          resizefs: true
+      - name: "Create filesystem on LV"
+        become: true
+        community.general.filesystem:
+          fstype: ext4
+          dev: /dev/mapper/ubuntu--vg-images
+      - name: "Mount LV"
+        become: true
+        ansible.posix.mount:
+          path: /var/lib/libvirt/images
+          src: /dev/mapper/ubuntu--vg-images
+          fstype: ext4
+          state: mounted
+          opts: defaults
+    - name: "Nginx cache"
+      tags:
+        - nginx
+        - cache
+      block:
+        - name: "Create nginx config"
+          ansible.builtin.copy:
+            dest: /etc/nginx/sites-enabled/base-image
+            content: |
+              server {
+                listen 8000;
+                listen [::]:8000;
+                root {{ cache_path }};
+              }
+          register: nginx_conf
+        - name: "Ensure directory exists"
+          ansible.builtin.file:
+            path: "{{ cache_path }}"
+            state: directory
+        - name: "Ensure nginx is started and enabled"
+          ansible.builtin.service:
+            name: nginx
+            state: "{{ 'restarted' if nginx_conf.changed else 'started' }}"
+            enabled: yes
+    - name: "libvirt"
+      tags:
+        - libvirt
+        - vms
+      block:
+        - name: "Check if cloud image is present"
+          ansible.builtin.stat:
+            path: "{{ cloud_image_path }}"
+          register: cloud_image
+        - name: "Ensure directory exists"
+          ansible.builtin.file:
+            path: "{{ cloud_image_path | dirname }}"
+            state: directory
+          when: not cloud_image.stat.exists
+        - name: "Check if cloud image is present in cache"
+          ansible.builtin.stat:
+            path: "{{ cache_path }}/{{ cloud_image_path | basename }}"
+          when: not cloud_image.stat.exists
+          register: cached_image
+        - name: "Download vm cloud image to cache"
+          ansible.builtin.get_url:
+            url: "{{ cloud_image_url }}"
+            dest: "{{ cache_path }}/{{ cloud_image_path | basename }}"
+            mode: '0644'
+          when: >
+            not cloud_image.stat.exists and
+            (cached_image is defined and not cached_image.stat.exists)
+          register: cached_image_download
+        - name: "Download vm cloud image from cache cache"
+          ansible.builtin.copy:
+            dest: "{{ cloud_image_path }}"
+            src: "{{ cache_path }}/{{ cloud_image_path | basename }}"
+            remote_src: true
+            mode: '0644'
+          when: >
+            not cloud_image.stat.exists and
+            ((cached_image is defined and cached_image.stat.exists) or
+            cached_image_download is defined)
+        - name: "Fix Ubuntu qemu libvirt config"
+          ansible.builtin.lineinfile:
+            path: /etc/libvirt/qemu.conf
+            regexp: "^{{ item.key }}"
+            line: "{{ item.key }} = {{ item.value }}"
+          with_items:
+            - { "key": "user", "value": "\"libvirt-qemu\"" }
+            - { "key": "group", "value": "\"libvirt-qemu\"" }
+            - { "key": "dynamic_ownership", "value": "1" }
+            - { "key": "security_driver", "value": "\"none\"" }
+          register: libvirt_qemu_conf
+        - name: "Ensure libvirt is started and enabled"
+          ansible.builtin.service:
+            name: libvirtd
+            state: "{{ 'restarted' if libvirt_qemu_conf.changed else 'started' }}"
+            enabled: yes
+    - name: "Docker"
+      tags:
+        - docker
+        - containers
+      block:
+        - name: "Ensure docker is started and enabled"
+          ansible.builtin.service:
+            name: docker
+            state: started
+            enabled: yes
+        - name: "Run docker registry"
+          community.docker.docker_container:
+            name: registry
+            image: registry:2
+            state: started
+            ports:
+              - "5000:5000"
+            restart_policy: "always"
+    - name: "APT"
+      tags:
+        - pkg
+        - apt
+      block:
+        - name: "Replace sources.list"
+          ansible.builtin.replace:
+            path: /etc/apt/sources.list
+            regexp: "^deb http[^ ]*"
+            replace: "deb http://ubuntu.task.gda.pl/ubuntu"
+        - name: "Configure squid-deb-proxy"
+          ansible.builtin.copy:
+            dest: /etc/squid-deb-proxy/squid-deb-proxy.conf
+            content: |
+              http_port 3142
+              acl localnet src 127.0.0.1
+              acl localnet src {{ network }}
+              http_access allow localnet
+          register: pc_conf
+        - name: "Ensure squid-deb-proxy is started and enabled"
+          ansible.builtin.service:
+            name: squid-deb-proxy
+            state: "{{ 'restarted' if pc_conf.changed else 'started' }}"
+            enabled: yes
+        - name: "Create APT proxy configuration"
+          ansible.builtin.copy:
+            dest: /etc/apt/apt.conf.d/01proxy
+            content: 'Acquire::http::Proxy "http://localhost:3142/";'
+            owner: root
+            group: root
+            mode: '0644'

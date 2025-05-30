@@ -1,0 +1,20 @@
+---
+all:
+  hosts:
+    host:
+      ansible_host: "${ host }"
+      ansible_user: "${ host_user }"
+  vars:
+    ansible_port: 22
+  children:
+    vms:
+      vars:
+        ansible_user: "${ username }"
+        ansible_ssh_common_args: "-J ${ host_user }@${ host } -o StrictHostKeyChecking=no"
+      children:
+        %{ for group, vm in vms }${ group }:
+          hosts:
+            %{ for name, config in vm }${ name }:
+                ansible_host: ${ config.ip }
+            %{ endfor }
+        %{ endfor }

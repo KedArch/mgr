@@ -1,5 +1,10 @@
 ---
+- name: "Include playbook: vms"
+  ansible.builtin.import_playbook: vms.yml
+  vars:
+    ansible_limit: "{{ ansible_limit | default(['control','worker']) }}"
+  when: k3s_uninstall is not defined or not k3s_uninstall
 - name: "Configure k3s"
-  hosts: "{{ ansible_limit | default('all') }}"
+  hosts: "{{ ansible_limit | default(['control','worker']) }}"
   roles:
-    - k3s
+    - role: k3s

@@ -8,6 +8,11 @@
   ansible.builtin.include_tasks: uninstall.yml
   when: k3s_uninstall is defined and k3s_uninstall and k3s_binary.stat.exists
 
+- name: "Find control plane endpoint"
+  ansible.builtin.set_fact:
+    k3s_cp_endpoint: "{{ hostvars[groups['control'] | first]['ansible_host'] }}"
+  when: k3s_cp_endpoint is not defined and not (k3s_uninstall is defined and k3s_uninstall and k3s_binary.stat.exists)
+
 - name: "Install k3s control plane node"
   ansible.builtin.include_tasks: install_first_control_plane.yml
   when: (k3s_uninstall is not defined or not k3s_uninstall) and (inventory_hostname == (groups['control'] | first)) and not k3s_binary.stat.exists

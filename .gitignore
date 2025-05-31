@@ -1,0 +1,9 @@
+.ansible
+.vscode
+ansible/inventory
+host
+host_user
+terraform/.terraform.lock.hcl
+terraform/.terraform/
+terraform/*.auto.tfvars
+terraform/terraform.tfstate*

@@ -14,7 +14,7 @@
   hosts: host
   vars:
     cloud_image_url: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
-    cloud_image_path: "/var/lib/libvirt/images/base-image.img"
+    cloud_image_path: "/var/lib/libvirt/images/default/base-image.qcow2"
     cache_path: "/var/www/cache"
     network: "10.200.0.0/16"
   tasks:
@@ -60,6 +60,8 @@
       tags:
         - nginx
         - cache
+        - libvirt
+        - vms
       block:
         - name: "Create nginx config"
           ansible.builtin.copy:
@@ -108,6 +110,20 @@
             not cloud_image.stat.exists and
             (cached_image is defined and not cached_image.stat.exists)
           register: cached_image_download
+        - name: "Check base image file size"
+          ansible.builtin.stat:
+            path: "{{ cache_path }}/{{ cloud_image_path | basename }}"
+          register: cached_image
+        - name: "Create libvirt default resources"
+          ansible.builtin.shell:
+            cmd: "{{ item }}"
+            executable: /bin/bash
+          with_items:
+            - virsh pool-create-as --name default --type dir --target /var/lib/libvirt/images/default
+            - virsh pool-define <(virsh pool-dumpxml default)
+            - virsh pool-autostart default
+            - virsh vol-create-as --pool default --name {{ cloud_image_path | basename }} --capacity {{ cached_image.stat.size }}
+          ignore_errors: true
         - name: "Download vm cloud image from cache cache"
           ansible.builtin.copy:
             dest: "{{ cloud_image_path }}"

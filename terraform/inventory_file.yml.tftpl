@@ -12,9 +12,11 @@ all:
         ansible_user: "${ username }"
         ansible_ssh_common_args: "-J ${ host_user }@${ host } -o StrictHostKeyChecking=no"
       children:
-        %{ for group, vm in vms }${ group }:
+        %{~ for group, vm in vms ~}
+        ${ group }:
           hosts:
-            %{ for name, config in vm }${ name }:
-                ansible_host: ${ config.ip }
-            %{ endfor }
-        %{ endfor }
+            %{~ for name, config in vm ~}
+            ${ name }:
+              ansible_host: ${ config.ip }
+            %{~ endfor ~}
+        %{~ endfor ~}

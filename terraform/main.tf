@@ -45,14 +45,6 @@ resource "libvirt_network" "internal" {
   addresses = [var.vm_subnet]
 }
 
-resource "libvirt_pool" "default" {
-  name = "default"
-  type = "dir"
-  target {
-    path = "/var/lib/libvirt/images"
-  }
-}
-
 resource "libvirt_pool" "cloud_init" {
   name = "cloud_init"
   type = "dir"
@@ -88,9 +80,12 @@ resource "libvirt_cloudinit_disk" "init" {
 }
 
 resource "libvirt_volume" "base_image" {
-  name = "base-image.img"
-  pool = libvirt_pool.default.name
+  name = "base-image.qcow2"
+  pool = "default"
   format = "qcow2"
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "libvirt_volume" "system" {
@@ -118,9 +113,6 @@ resource "libvirt_domain" "vm" {
   vcpu = each.value.vcpu
   memory = each.value.ram
   cloudinit = libvirt_cloudinit_disk.init[each.key].id
-  cpu {
-    mode = "host-model"
-  }
 
   console {
     type = "pty"
@@ -149,7 +141,6 @@ resource "libvirt_domain" "vm" {
     network_id = libvirt_network.internal.id
     wait_for_lease = false
     hostname = each.key
-    addresses = ["${each.value.ip}"]
   }
 }
 

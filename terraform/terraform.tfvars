@@ -103,6 +103,6 @@ group_vars = {
     "data_dir" = "/opt"
   }
   "worker" = {
-    "k8s_group_vars" = "['node-role.kubernetes.io/worker=']"
+    "k8s_group_labels" = "['node-role.kubernetes.io/worker=']"
   }
 }

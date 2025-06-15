@@ -26,7 +26,6 @@ vms = {
       storage_size = 10
       vars = {
         region = "regional"
-        test = 1
       }
     }
   }

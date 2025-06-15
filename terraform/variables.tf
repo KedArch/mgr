@@ -36,5 +36,6 @@ variable "vms" {
     ram = number
     ip = string
     storage_size = number # it is multiplied by 1024^3
+    vars = optional(map(string))
   })))
 }

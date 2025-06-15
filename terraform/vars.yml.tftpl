@@ -1,0 +1,6 @@
+---
+%{ if vars != null ~}
+%{~ for name, value in vars ~}
+${ name }: ${ value }
+%{ endfor ~}
+%{~ endif ~}

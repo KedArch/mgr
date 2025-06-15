@@ -17,7 +17,7 @@ locals {
   ])...)
 
   cloud_init_configs = {
-    for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/cloud_init.cfg", {
+    for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/cloud_init.cfg.tftpl", {
       hostname = vm
       username = var.vm_user
       password_hash = var.vm_user_pass_hash
@@ -26,13 +26,13 @@ locals {
   }
 
   meta_data_configs = {
-    for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/meta-data", {
+    for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/meta-data.tftpl", {
       hostname = vm
     })
   }
 
   network_configs = {
-    for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/network.yaml", {
+    for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/network.yaml.tftpl", {
       ip = config.ip
     })
   }
@@ -153,6 +153,18 @@ resource "local_file" "ansible_inventory_file" {
       username = var.vm_user
     }
   )
-  filename = "../ansible/inventory"
+  filename = "../ansible/inventory/hosts"
 }
 
+resource "local_file" "ansible_host_vars_files" {
+  for_each = merge(flatten([
+    for group, vms in var.vms : merge( { for vm, config in vms : "${vm}" => config } )
+  ])...)
+
+  content = templatefile("${path.module}/vars.yml.tftpl",
+    {
+      vars = try(each.value.vars, {})
+    }
+  )
+  filename = "../ansible/inventory/host_vars/${each.key}.yml"
+}

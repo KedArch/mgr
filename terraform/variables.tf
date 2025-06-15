@@ -31,11 +31,17 @@ variable "vm_subnet" {
 
 variable "vms" {
   description = "Map of VM configurations with named types as keys"
-  type = map(map(object({
+  type = map(map(object({ # first key is group, group_vars are in seperate var
     vcpu = number
     ram = number
     ip = string
     storage_size = number # it is multiplied by 1024^3
-    vars = optional(map(string))
+    vars = optional(map(string)) # ansible host_vars
   })))
+}
+
+variable "group_vars" {
+  description = "Variables for ansible group_vars"
+  type = map(map(any))
+  default = {}
 }

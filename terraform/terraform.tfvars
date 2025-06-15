@@ -94,3 +94,14 @@ vms = {
     }
   }
 }
+group_vars = {
+  "all" = {
+    "host_internal_ip" = "10.200.0.1"
+    "squid_port" = 3142
+    "http_port" = 8000
+    "data_dir" = "/opt"
+  }
+  "worker" = {
+    "k8s_group_vars" = "['node-role.kubernetes.io/worker=']"
+  }
+}

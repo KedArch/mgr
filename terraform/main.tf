@@ -168,3 +168,13 @@ resource "local_file" "ansible_host_vars_files" {
   )
   filename = "../ansible/inventory/host_vars/${each.key}.yml"
 }
+
+resource "local_file" "ansible_group_vars_files" {
+  for_each = var.group_vars
+  content = templatefile("${path.module}/vars.yml.tftpl",
+    {
+      vars = try(each.value, {})
+    }
+  )
+  filename = "../ansible/inventory/group_vars/${each.key}.yml"
+}

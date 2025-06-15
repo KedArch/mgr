@@ -1,9 +1,13 @@
 .ansible
 .vscode
-ansible/inventory
-host
+ansible/inventory/hosts
+ansible/inventory/host_vars
+!ansible/inventory/group_vars/*
+host_ip
 host_user
+host_user_password
 terraform/.terraform.lock.hcl
 terraform/.terraform/
 terraform/*.auto.tfvars
 terraform/terraform.tfstate*
+terraform/.terraform.tfstate*

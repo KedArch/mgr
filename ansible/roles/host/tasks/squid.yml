@@ -1,35 +1,40 @@
 ---
-- name: "Configure squid"
-  ansible.builtin.copy:
-    dest: /etc/squid/squid.conf
-    content: |
-      http_port {{ squid_port }}
-      cache_dir ufs {{ host_squid_cache_dir }} {{ host_squid_cache_size }} 16 256
-      acl localnet src 127.0.0.1
-      acl localnet src {{ host_vm_network }}
-      http_access allow localnet
-      http_access deny all
-      maximum_object_size 512 MB
-    mode: "755"
-  register: squid_conf
+- name: "Block"
+  tags:
+    - always
+  block:
+    - name: "Configure squid"
+      ansible.builtin.copy:
+        dest: /etc/squid/squid.conf
+        content: |
+          http_port {{ squid_port }}
+          cache_dir ufs {{ host_squid_cache_dir }} {{ host_squid_cache_size }} 16 256
+          acl localnet src 127.0.0.1
+          acl localnet src {{ host_vm_network }}
+          http_access allow localnet
+          http_access deny all
+          maximum_object_size 512 MB
+        mode: "755"
+      register: squid_conf
 
-- name: "Ensure squid is started and enabled"
-  ansible.builtin.service:
-    name: squid
-    state: "{{ 'restarted' if squid_conf.changed else 'started' }}"
-    enabled: true
+    - name: "Ensure squid is started and enabled"
+      ansible.builtin.service:
+        name: squid
+        state: "{{ 'restarted' if squid_conf.changed else 'started' }}"
+        enabled: true
 
-- name: Allow Squid traffic through the firewall
-  community.general.ufw:
-    rule: allow
-    port: "{{ squid_port }}"
-    proto: tcp
+    - name: Allow Squid traffic through the firewall
+      community.general.ufw:
+        rule: allow
+        port: "{{ squid_port }}"
+        proto: tcp
 
-- name: "Add proxy to environment"
-  ansible.builtin.lineinfile:
-    path: /etc/environment
-    regexp: "^{{ item.key }}"
-    line: "{{ item.key }}={{ item.value }}"
-  with_items:
-    - { "key": "http_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
-    - { "key": "https_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+    - name: "Add proxy to environment"
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        regexp: "^{{ item.key }}"
+        line: "{{ item.key }}={{ item.value }}"
+      with_items:
+        - { "key": "http_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+        - { "key": "https_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+        - { "key": "no_proxy", "value": "localhost,127.0.0.1,{{ host_vm_network }}" }

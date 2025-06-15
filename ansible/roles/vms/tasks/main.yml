@@ -16,3 +16,4 @@
   with_items:
     - { "key": "http_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
     - { "key": "https_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+    - { "key": "no_proxy", "value": "localhost,127.0.0.1,{{ host_vm_network }}" }

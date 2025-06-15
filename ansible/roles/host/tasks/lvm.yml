@@ -1,21 +1,25 @@
 ---
-- name: "Create LV for images"
-  community.general.lvol:
-    vg: ubuntu-vg
-    lv: images
-    size: 360G
-    force: true
-    resizefs: true
+- name: "Block"
+  tags:
+    - always
+  block:
+    - name: "Create LV for images"
+      community.general.lvol:
+        vg: ubuntu-vg
+        lv: images
+        size: 360G
+        force: true
+        resizefs: true
 
-- name: "Create filesystem on LV"
-  community.general.filesystem:
-    fstype: ext4
-    dev: /dev/mapper/ubuntu--vg-images
+    - name: "Create filesystem on LV"
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/mapper/ubuntu--vg-images
 
-- name: "Mount LV"
-  ansible.posix.mount:
-    path: /var/lib/libvirt/images
-    src: /dev/mapper/ubuntu--vg-images
-    fstype: ext4
-    state: mounted
-    opts: defaults
+    - name: "Mount LV"
+      ansible.posix.mount:
+        path: /var/lib/libvirt/images
+        src: /dev/mapper/ubuntu--vg-images
+        fstype: ext4
+        state: mounted
+        opts: defaults

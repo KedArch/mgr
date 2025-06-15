@@ -5,8 +5,6 @@
 
 - name: "Configure host"
   hosts: host
-  tags:
-    - always
   become: true
   roles:
     - host

@@ -1,73 +1,77 @@
 ---
-- name: "Check if cloud image is present"
-  ansible.builtin.stat:
-    path: "{{ host_cloud_image_path }}"
-  register: cloud_image
+- name: "Block"
+  tags:
+    - always
+  block:
+    - name: "Check if cloud image is present"
+      ansible.builtin.stat:
+        path: "{{ host_cloud_image_path }}"
+      register: cloud_image
 
-- name: "Ensure directory exists"
-  ansible.builtin.file:
-    path: "{{ host_cloud_image_path | dirname }}"
-    state: directory
-    mode: "755"
-  when: not cloud_image.stat.exists
+    - name: "Ensure directory exists"
+      ansible.builtin.file:
+        path: "{{ host_cloud_image_path | dirname }}"
+        state: directory
+        mode: "755"
+      when: not cloud_image.stat.exists
 
-- name: "Check if cloud image is present in cache"
-  ansible.builtin.stat:
-    path: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
-  when: not cloud_image.stat.exists
-  register: cached_image
+    - name: "Check if cloud image is present in cache"
+      ansible.builtin.stat:
+        path: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
+      when: not cloud_image.stat.exists
+      register: cached_image
 
-- name: "Download vm cloud image to cache"
-  ansible.builtin.get_url:
-    url: "{{ cloud_image_url }}"
-    dest: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
-    mode: '0644'
-  when: >
-    not cloud_image.stat.exists and
-    (cached_image is defined and not cached_image.stat.exists)
-  register: cached_image_download
+    - name: "Download vm cloud image to cache"
+      ansible.builtin.get_url:
+        url: "{{ cloud_image_url }}"
+        dest: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
+        mode: '0644'
+      when: >
+        not cloud_image.stat.exists and
+        (cached_image is defined and not cached_image.stat.exists)
+      register: cached_image_download
 
-- name: "Check base image file size"
-  ansible.builtin.stat:
-    path: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
-  register: cached_image
+    - name: "Check base image file size"
+      ansible.builtin.stat:
+        path: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
+      register: cached_image
 
-- name: "Create libvirt default resources" # noqa: no-changed-when ignore-errors
-  ansible.builtin.shell:
-    cmd: "{{ item }}"
-    executable: /bin/bash
-  with_items:
-    - virsh pool-create-as --name default --type dir --target /var/lib/libvirt/images/default
-    - virsh pool-define <(virsh pool-dumpxml default)
-    - virsh pool-autostart default
-    - virsh vol-create-as --pool default --name {{ host_cloud_image_path | basename }} --capacity {{ cached_image.stat.size }}
-  ignore_errors: true
+    - name: "Create libvirt default resources" # noqa: no-changed-when ignore-errors
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+        executable: /bin/bash
+      with_items:
+        - virsh pool-create-as --name default --type dir --target /var/lib/libvirt/images/default
+        - virsh pool-define <(virsh pool-dumpxml default)
+        - virsh pool-autostart default
+        - virsh vol-create-as --pool default --name {{ host_cloud_image_path | basename }} --capacity {{ cached_image.stat.size }}
+      ignore_errors: true
 
-- name: "Download vm cloud image from cache cache"
-  ansible.builtin.copy:
-    dest: "{{ host_cloud_image_path }}"
-    src: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
-    remote_src: true
-    mode: '0644'
-  when: >
-    not cloud_image.stat.exists and
-    ((cached_image is defined and cached_image.stat.exists) or
-    cached_image_download is defined)
+    - name: "Download vm cloud image from cache cache"
+      ansible.builtin.copy:
+        dest: "{{ host_cloud_image_path }}"
+        src: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
+        remote_src: true
+        mode: '0644'
+      when: >
+        not cloud_image.stat.exists and
+        ((cached_image is defined and cached_image.stat.exists) or
+        cached_image_download is defined)
 
-- name: "Fix Ubuntu qemu libvirt config"
-  ansible.builtin.lineinfile:
-    path: /etc/libvirt/qemu.conf
-    regexp: "^{{ item.key }}"
-    line: "{{ item.key }} = {{ item.value }}"
-  with_items:
-    - { "key": "user", "value": "\"libvirt-qemu\"" }
-    - { "key": "group", "value": "\"libvirt-qemu\"" }
-    - { "key": "dynamic_ownership", "value": "1" }
-    - { "key": "security_driver", "value": "\"none\"" }
-  register: libvirt_qemu_conf
+    - name: "Fix Ubuntu qemu libvirt config"
+      ansible.builtin.lineinfile:
+        path: /etc/libvirt/qemu.conf
+        regexp: "^{{ item.key }}"
+        line: "{{ item.key }} = {{ item.value }}"
+      with_items:
+        - { "key": "user", "value": "\"libvirt-qemu\"" }
+        - { "key": "group", "value": "\"libvirt-qemu\"" }
+        - { "key": "dynamic_ownership", "value": "1" }
+        - { "key": "security_driver", "value": "\"none\"" }
+      register: libvirt_qemu_conf
 
-- name: "Ensure libvirt is started and enabled"
-  ansible.builtin.service:
-    name: libvirtd
-    state: "{{ 'restarted' if libvirt_qemu_conf.changed else 'started' }}"
-    enabled: true
+    - name: "Ensure libvirt is started and enabled"
+      ansible.builtin.service:
+        name: libvirtd
+        state: "{{ 'restarted' if libvirt_qemu_conf.changed else 'started' }}"
+        enabled: true

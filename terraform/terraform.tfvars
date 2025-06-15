@@ -97,6 +97,7 @@ vms = {
 group_vars = {
   "all" = {
     "host_internal_ip" = "10.200.0.1"
+    "host_vm_network" = "10.200.0.0/16"
     "squid_port" = 3142
     "nginx_port" = 8000
     "data_dir" = "/opt"

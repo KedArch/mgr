@@ -1,16 +1,20 @@
 ---
-- name: "Replace sources.list"
-  ansible.builtin.replace:
-    path: /etc/apt/sources.list
-    regexp: "^deb http[^ ]*"
-    replace: "deb http://ubuntu.task.gda.pl/ubuntu"
-  register: sources
+- name: "Block"
+  tags:
+    - always
+  block:
+    - name: "Replace sources.list"
+      ansible.builtin.replace:
+        path: /etc/apt/sources.list
+        regexp: "^deb http[^ ]*"
+        replace: "deb http://ubuntu.task.gda.pl/ubuntu"
+      register: sources
 
-- name: "Update APT cache" # noqa: no-handler
-  ansible.builtin.apt:
-    update_cache: true
-  when: sources.changed
+    - name: "Update APT cache" # noqa: no-handler
+      ansible.builtin.apt:
+        update_cache: true
+      when: sources.changed
 
-- name: "Install required packages"
-  ansible.builtin.apt:
-    pkg: "{{ host_packages }}"
+    - name: "Install required packages"
+      ansible.builtin.apt:
+        pkg: "{{ host_packages }}"

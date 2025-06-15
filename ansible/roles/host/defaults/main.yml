@@ -2,7 +2,6 @@
 host_cloud_image_url: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
 host_cloud_image_path: "/var/lib/libvirt/images/default/base-image.qcow2"
 host_nginx_cache_path: "/var/www/cache"
-host_vm_network: "10.200.0.0/16"
 host_packages:
   - libvirt-daemon-system
   - libvirt-clients

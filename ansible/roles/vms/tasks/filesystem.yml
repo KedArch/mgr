@@ -1,0 +1,19 @@
+---
+- name: "Create partition"
+  community.general.parted:
+    device: /dev/vdb
+    number: 1
+    flags: []
+    state: present
+
+- name: "Create filesystem"
+  community.general.filesystem:
+    fstype: ext4
+    dev: /dev/vdb1
+
+- name: "Mount partition"
+  ansible.posix.mount:
+    fstype: ext4
+    src: /dev/vdb1
+    path: "{{ data_dir if vms_data_path is not defined else vms_data_path }}"
+    state: mounted

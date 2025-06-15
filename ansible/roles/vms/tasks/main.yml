@@ -1,0 +1,16 @@
+---
+- name: "Disable ufw"
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+
+- name: "Include task: filesystem"
+  ansible.builtin.include_tasks: filesystem.yml
+
+- name: "Create APT proxy configuration"
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/01proxy
+    content: 'Acquire::http::Proxy "http://localhost:{{ squid_port }}/";'
+    owner: root
+    group: root
+    mode: '0644'

@@ -1,6 +1,5 @@
 ---
 - name: "Create LV for images"
-  become: true
   community.general.lvol:
     vg: ubuntu-vg
     lv: images
@@ -9,13 +8,11 @@
     resizefs: true
 
 - name: "Create filesystem on LV"
-  become: true
   community.general.filesystem:
     fstype: ext4
     dev: /dev/mapper/ubuntu--vg-images
 
 - name: "Mount LV"
-  become: true
   ansible.posix.mount:
     path: /var/lib/libvirt/images
     src: /dev/mapper/ubuntu--vg-images

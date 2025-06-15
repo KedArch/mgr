@@ -1,0 +1,44 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: Europe/Warsaw
+
+- name: "Include task: packages"
+  ansible.builtin.include_tasks: packages.yml
+  tags:
+    - pkg
+    - apt
+
+- name: "Include task: LVM"
+  ansible.builtin.include_tasks: lvm.yml
+  tags:
+    - lvm
+
+- name: "Include task: nginx"
+  ansible.builtin.include_tasks: nginx.yml
+  tags:
+    - nginx
+    - cache
+    - libvirt
+    - vms
+
+- name: "Include task: libvirt"
+  ansible.builtin.include_tasks: libvirt.yml
+  tags:
+    - libvirt
+    - vms
+
+- name: "Include task: docker"
+  ansible.builtin.include_tasks: docker.yml
+  tags:
+    - docker
+    - containers
+    - registry
+
+- name: "Include task: squid"
+  ansible.builtin.include_tasks: squid.yml
+  tags:
+    - pkg
+    - apt
+    - squid
+    - cache

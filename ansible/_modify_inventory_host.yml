@@ -1,0 +1,13 @@
+---
+- name: "Import host parameters"
+  hosts: localhost
+  gather_facts: false
+  tags:
+    - always
+  tasks:
+    - name: "Modify inventory"
+      ansible.builtin.add_host:
+        name: host
+        ansible_host: "{{ lookup('ansible.builtin.file', '../host_ip') }}"
+        ansible_user: "{{ lookup('ansible.builtin.file', '../host_user') }}"
+        ansible_become_password: "{{ lookup('ansible.builtin.file', '../host_user_password') }}"

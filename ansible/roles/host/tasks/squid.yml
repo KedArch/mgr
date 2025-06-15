@@ -1,0 +1,34 @@
+---
+- name: "Configure squid"
+  ansible.builtin.copy:
+    dest: /etc/squid/squid.conf
+    content: |
+      http_port {{ squid_port }}
+      cache_dir ufs {{ host_squid_cache_dir }} {{ host_squid_cache_size }} 16 256
+      acl localnet src 127.0.0.1
+      acl localnet src {{ host_vm_network }}
+      http_access allow localnet
+      http_access deny all
+      maximum_object_size 512 MB
+    mode: "755"
+  register: squid_conf
+
+- name: "Ensure squid is started and enabled"
+  ansible.builtin.service:
+    name: squid
+    state: "{{ 'restarted' if squid_conf.changed else 'started' }}"
+    enabled: true
+
+- name: Allow Squid traffic through the firewall
+  community.general.ufw:
+    rule: allow
+    port: "{{ squid_port }}"
+    proto: tcp
+
+- name: "Create APT proxy configuration"
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/01proxy
+    content: 'Acquire::http::Proxy "http://localhost:{{ squid_port }}/";'
+    owner: root
+    group: root
+    mode: '0644'

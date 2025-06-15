@@ -1,0 +1,15 @@
+---
+- name: "Ensure docker is started and enabled"
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: "Run docker registry"
+  community.docker.docker_container:
+    name: registry
+    image: registry:2
+    state: started
+    ports:
+      - "5000:5000"
+    restart_policy: "always"

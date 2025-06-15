@@ -1,0 +1,4 @@
+---
+squid_port: 3142
+http_port: 8000
+data_dir: /opt

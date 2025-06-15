@@ -26,7 +26,7 @@
     state: absent
   when: >
     (k3s_remove_files is defined and k3s_remove_files)
-    and (k3s_remove_data is defined and k3s_remove_data)
+    or (k3s_remove_data is defined and k3s_remove_data)
 
 - name: "Remove conf dir"
   become: true
@@ -35,4 +35,4 @@
     state: absent
   when: >
     (k3s_remove_files is defined and k3s_remove_files)
-    and (k3s_remove_conf is defined and k3s_remove_conf)
+    or (k3s_remove_conf is defined and k3s_remove_conf)

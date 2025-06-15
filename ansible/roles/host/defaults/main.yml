@@ -10,6 +10,7 @@ host_packages:
   - qemu-utils
   - docker.io
   - squid
+  - squidclient
   - nginx
 host_squid_cache_dir: "/var/spool/squid"
 host_squid_cache_size: "10000"

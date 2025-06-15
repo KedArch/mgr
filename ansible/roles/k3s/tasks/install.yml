@@ -19,6 +19,7 @@
   environment:
     INSTALL_K3S_EXEC: >
       {{ type }}
+      --node-name {{ ansible_hostname }}
       --data-dir {{ k3s_data_path }}
       --token {{ token }}
       --server {{ server }}

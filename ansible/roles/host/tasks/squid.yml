@@ -25,10 +25,11 @@
     port: "{{ squid_port }}"
     proto: tcp
 
-- name: "Create APT proxy configuration"
-  ansible.builtin.copy:
-    dest: /etc/apt/apt.conf.d/01proxy
-    content: 'Acquire::http::Proxy "http://localhost:{{ squid_port }}/";'
-    owner: root
-    group: root
-    mode: '0644'
+- name: "Add proxy to environment"
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    regexp: "^{{ item.key }}"
+    line: "{{ item.key }}={{ item.value }}"
+  with_items:
+    - { "key": "http_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+    - { "key": "https_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }

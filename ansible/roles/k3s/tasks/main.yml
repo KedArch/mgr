@@ -4,9 +4,19 @@
     path: /usr/local/bin/k3s
   register: k3s_binary
 
+- name: "Set common parameters"
+  ansible.builtin.set_fact:
+    k3s_root_path: "{{ k3s_root_path if k3s_root_path is defined and k3s_root_path else null }}"
+    k3s_conf_path: "{{ k3s_root_path ~ '/rancher/conf' if k3s_root_path is defined and k3s_root_path else '/etc/rancher' }}"
+    k3s_data_path: "{{ k3s_root_path ~ '/rancher/data' if k3s_root_path is defined and k3s_root_path else '/var/lib/rancher' }}"
+
 - name: "Uninstall k3s"
   ansible.builtin.include_tasks: uninstall.yml
   when: k3s_uninstall is defined and k3s_uninstall and k3s_binary.stat.exists
+
+- name: "Prepare data and conf paths"
+  ansible.builtin.include_tasks: paths.yml
+  when: k3s_uninstall is not defined or not k3s_uninstall and not k3s_binary.stat.exists
 
 - name: "Find control plane endpoint"
   ansible.builtin.set_fact:
@@ -19,4 +29,9 @@
 
 - name: "Install k3s node"
   ansible.builtin.include_tasks: install.yml
-  when: (k3s_uninstall is not defined or not k3s_uninstall) and not (inventory_hostname == (groups['control'] | first)) and not k3s_binary.stat.exists and (inventory_hostname in groups['control'] or inventory_hostname in groups['worker'])
+  when: >
+    (k3s_uninstall is not defined or not k3s_uninstall)
+    and not (inventory_hostname == (groups['control'] | first))
+    and not k3s_binary.stat.exists
+    and (inventory_hostname in groups['control']
+    or inventory_hostname in groups['worker'])

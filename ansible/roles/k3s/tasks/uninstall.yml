@@ -19,14 +19,20 @@
   ansible.builtin.command: k3s-agent-uninstall.sh
   when: k3s_binary.stat.exists
 
-- name: "Remove /var/lib/rancher dir"
+- name: "Remove data dir"
   become: true
   ansible.builtin.file:
-    path: /var/lib/rancher
+    path: "{{ k3s_data_path }}"
     state: absent
+  when: >
+    (k3s_remove_files is defined and k3s_remove_files)
+    and (k3s_remove_data is defined and k3s_remove_data)
 
-- name: "Remove /etc/rancher dir"
+- name: "Remove conf dir"
   become: true
   ansible.builtin.file:
-    path: /etc/rancher
+    path: "{{ k3s_conf_path }}"
     state: absent
+  when: >
+    (k3s_remove_files is defined and k3s_remove_files)
+    and (k3s_remove_conf is defined and k3s_remove_conf)

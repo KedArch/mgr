@@ -5,6 +5,11 @@
     executable: /bin/bash
   register: out
   environment:
-    INSTALL_K3S_EXEC: "server --node-ip {{ k3s_cp_endpoint }} --tls-san {{ k3s_cp_endpoint }} --cluster-init {{ k3s_cp_options }}"
+    INSTALL_K3S_EXEC: >
+      server
+      --data-dir {{ k3s_data_path }}
+      --node-ip {{ k3s_cp_endpoint }}
+      --tls-san {{ k3s_cp_endpoint }}
+      --cluster-init {{ k3s_cp_options }}
   changed_when: out.rc == 0
   failed_when: out.rc != 0

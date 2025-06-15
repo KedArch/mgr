@@ -1,0 +1,61 @@
+---
+- name: "Create parent dirs of conf and data paths"
+  ansible.builtin.file:
+    path: "{{ item | dirname }}"
+    state: directory
+    mode: "750"
+  with_items:
+    - "{{ k3s_conf_path }}"
+    - "{{ k3s_data_path }}"
+
+- name: "Check if conf directory exist"
+  ansible.builtin.stat:
+    path: "/etc/rancher"
+  register: conf_path
+
+- name: "Move default conf directory if exist"
+  ansible.builtin.copy:
+    src: "/etc/rancher"
+    dest: "{{ k3s_conf_path }}"
+    remote_src: true
+    mode: "750"
+  when: conf_path.stat.isdir is defined and conf_path.stat.isdir
+
+- name: Remove the default conf directory
+  ansible.builtin.file:
+    path: "/etc/rancher"
+    state: absent
+  when: conf_path.stat.isdir is defined and conf_path.stat.isdir
+
+- name: "Check if data directory exist"
+  ansible.builtin.stat:
+    path: "/etc/rancher"
+  register: data_path
+
+- name: "Move default data directory if exist"
+  ansible.builtin.copy:
+    src: "/etc/rancher"
+    dest: "{{ k3s_data_path }}"
+    remote_src: true
+    mode: "750"
+  when: data_path.stat.isdir is defined and data_path.stat.isdir
+
+- name: Remove the default data directory
+  ansible.builtin.file:
+    path: "/etc/rancher"
+    state: absent
+  when: data_path.stat.isdir is defined and data_path.stat.isdir
+
+- name: "Create conf path"
+  ansible.builtin.file:
+    path: "{{ k3s_conf_path }}"
+    state: directory
+    mode: "750"
+  when: conf_path.stat.exist is not defined or not conf_path.stat.exist
+
+- name: "Create data path"
+  ansible.builtin.file:
+    path: "{{ k3s_data_path }}"
+    state: directory
+    mode: "750"
+  when: data_path.stat.exist is not defined or not data_path.stat.exist

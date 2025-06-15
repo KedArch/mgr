@@ -3,7 +3,7 @@
   become: true
   delegate_to: "{{ groups['control'] | first }}"
   ansible.builtin.slurp:
-    src: "/var/lib/rancher/k3s/server/token"
+    src: "{{ k3s_data_path }}/server/token"
   register: token_file
 
 - name: "Set common node parameters"
@@ -17,7 +17,12 @@
     cmd: "set -o pipefail && curl -sfL https://get.k3s.io | sh -"
     executable: /bin/bash
   environment:
-    INSTALL_K3S_EXEC: "{{ type }} --token {{ token }} --server {{ server }} --node-ip {{ ansible_host }}"
+    INSTALL_K3S_EXEC: >
+      {{ type }}
+      --data-dir {{ k3s_data_path }}
+      --token {{ token }}
+      --server {{ server }}
+      --node-ip {{ ansible_host }}
   register: out
   changed_when: out.rc == 0
   failed_when: out.rc != 0

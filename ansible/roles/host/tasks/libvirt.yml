@@ -23,7 +23,7 @@
 
     - name: "Download vm cloud image to cache"
       ansible.builtin.get_url:
-        url: "{{ cloud_image_url }}"
+        url: "{{ host_cloud_image_url }}"
         dest: "{{ host_nginx_cache_path }}/{{ host_cloud_image_path | basename }}"
         mode: '0644'
       when: >

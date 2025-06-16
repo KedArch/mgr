@@ -14,6 +14,6 @@ users:
 %{ endfor }
 growpart:
   mode: auto
-  devices: ['/dev/vda']
+  devices: ['/dev/vda1']
 runcmd:
   - resize2fs /dev/vda1

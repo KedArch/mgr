@@ -96,6 +96,7 @@ resource "libvirt_volume" "system" {
   pool = libvirt_pool.system.name
   base_volume_id = libvirt_volume.base_image.id
   format = "qcow2"
+  size = 5 * 1024 * 1024 * 1024
 }
 
 resource "libvirt_volume" "data" {

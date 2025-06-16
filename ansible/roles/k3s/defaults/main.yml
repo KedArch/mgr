@@ -1,2 +1,3 @@
 ---
-k3s_cp_options: --service-node-port-range 2000-10000
+k3s_default_cp_options:
+  service-node-port-range: 2000-10000

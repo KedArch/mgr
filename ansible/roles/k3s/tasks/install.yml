@@ -1,14 +1,14 @@
 ---
 - name: "Fetch registation token from first control plane"
   become: true
-  delegate_to: "{{ groups['control'] | first }}"
+  delegate_to: "{{ k3s_first_cp_node }}"
   ansible.builtin.slurp:
     src: "{{ k3s_data_path }}/server/token"
   register: token_file
 
 - name: "Set common node parameters"
   ansible.builtin.set_fact:
-    type: "{{ 'server' if 'control' in group_names else 'agent' }}"
+    type: "{{ 'server' if k3s_cp_node_group in group_names else 'agent' }}"
     token: "{{ token_file['content'] | b64decode | trim }}"
     server: "https://{{ k3s_cp_endpoint }}:6443"
 
@@ -19,7 +19,7 @@
   environment:
     INSTALL_K3S_EXEC: >
       {{ type }}
-      --node-name {{ ansible_hostname }}
+      --node-name {{ inventory_hostname }}
       --data-dir {{ k3s_data_path }}
       --token {{ token }}
       --server {{ server }}

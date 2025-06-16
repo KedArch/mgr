@@ -1,4 +1,9 @@
 ---
+- name: "Merge control plane options parameters"
+  ansible.builtin.set_fact:
+    k3s_cp_options: "{{ k3s_cp_options | default('') }} --{{ item.key }} {{ item.value }}"
+  with_dict: "{{ lookup('community.general.merge_variables', 'k[38]s_.*_cp_options') | default({}) }}"
+
 - name: "Install k3s node" # noqa: no-changed-when
   ansible.builtin.shell:
     cmd: "set -o pipefail && curl -sfL https://get.k3s.io | sh -"
@@ -7,10 +12,11 @@
   environment:
     INSTALL_K3S_EXEC: >
       server
-      --node-name {{ ansible_hostname }}
+      --node-name {{ inventory_hostname }}
       --data-dir {{ k3s_data_path }}
       --node-ip {{ k3s_cp_endpoint }}
       --tls-san {{ k3s_cp_endpoint }}
-      --cluster-init {{ k3s_cp_options }}
+      --cluster-init
+      {{ k3s_cp_options }}
   changed_when: out.rc == 0
   failed_when: out.rc != 0

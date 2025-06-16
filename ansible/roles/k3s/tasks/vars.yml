@@ -1,0 +1,17 @@
+---
+- name: "Merge label and taints vars"
+  ansible.builtin.set_fact:
+    k3s_labels: "{{ lookup('community.general.merge_variables', 'k[38]s_.*_labels') | default([]) }}"
+    k3s_taints: "{{ lookup('community.general.merge_variables', 'k[38]s_.*_taints') | default([]) }}"
+
+- name: "Apply node labels" # noqa: no-changed-when
+  ansible.builtin.command: "k3s kubectl label node {{ inventory_hostname }} {{ item }}"
+  delegate_to: "{{ k3s_first_cp_node }}"
+  with_items: "{{ k3s_labels }}"
+  when: k3s_labels is defined and k3s_labels or k3s_apply_vars is defined and k3s_apply_vars
+
+- name: "Apply node taints" # noqa: no-changed-when
+  ansible.builtin.command: "k3s kubectl taint node {{ inventory_hostname }} {{ item }}"
+  delegate_to: "{{ k3s_first_cp_node }}"
+  with_items: "{{ k3s_taints }}"
+  when: k3s_taints is defined and k3s_taints or k3s_apply_vars is defined and k3s_apply_vars

@@ -20,7 +20,6 @@
   when: k3s_binary.stat.exists
 
 - name: "Remove data dir"
-  become: true
   ansible.builtin.file:
     path: "{{ k3s_data_path }}"
     state: absent
@@ -29,10 +28,18 @@
     or (k3s_remove_data is defined and k3s_remove_data)
 
 - name: "Remove conf dir"
-  become: true
   ansible.builtin.file:
     path: "{{ k3s_conf_path }}"
     state: absent
   when: >
     (k3s_remove_files is defined and k3s_remove_files)
     or (k3s_remove_conf is defined and k3s_remove_conf)
+
+- name: "Remove default leftovers"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /etc/rancher
+    - /var/lib/rancher
+  when: k3s_remove_files is defined and k3s_remove_files

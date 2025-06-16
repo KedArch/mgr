@@ -6,8 +6,11 @@
     and (skip_vms is not defined or not skip_vms)
 
 - name: "Configure k3s"
-  hosts: "{{ ansible_limit | default(['control','worker']) }}"
+  hosts: "{{ ansible_limit | default('vms') }}"
   become: true
   roles:
     - role: k3s
       k3s_root_path: "{{ data_dir }}"
+      k3s_first_cp_node: "{{ first_cp_node }}"
+      k3s_cp_node_group: "{{ cp_node_group }}"
+      k3s_worker_node_group: "{{ worker_node_group }}"

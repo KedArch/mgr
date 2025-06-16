@@ -16,7 +16,7 @@ all:
         ${ group }:
           hosts:
             %{~ for name, config in vm ~}
-            ${ name }:
+            ${ group }-${ name }:
               ansible_host: ${ config.ip }
             %{~ endfor ~}
         %{~ endfor ~}

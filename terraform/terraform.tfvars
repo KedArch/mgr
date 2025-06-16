@@ -10,7 +10,7 @@ vms = {
         region = "main"
       }
     }
-    "sec-1" = {
+    "main-2" = {
       vcpu = 2
       ram = 4096
       ip = "10.200.0.12"
@@ -19,57 +19,57 @@ vms = {
         region = "main"
       }
     }
-    "sec-2" = {
+    "reg-1" = {
       vcpu = 2
       ram = 4096
-      ip = "10.200.0.13"
+      ip = "10.200.0.21"
       storage_size = 10
       vars = {
-        region = "regional"
+        region = "reg"
       }
     }
   }
   "worker" = {
-    "main-cloud-1" = {
+    "main-1" = {
+      vcpu = 4
+      ram = 8192
+      ip = "10.200.0.31"
+      storage_size = 50
+      vars = {
+        region = "main"
+      }
+    }
+    "main-2" = {
+      vcpu = 4
+      ram = 8192
+      ip = "10.200.0.32"
+      storage_size = 50
+      vars = {
+        region = "main"
+      }
+    }
+    "reg-1" = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.51"
       storage_size = 50
       vars = {
-        region = "main"
+        region = "reg"
       }
     }
-    "main-cloud-2" = {
+    "reg-2" = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.52"
       storage_size = 50
       vars = {
-        region = "main"
-      }
-    }
-    "reg-cloud-1" = {
-      vcpu = 4
-      ram = 8192
-      ip = "10.200.0.53"
-      storage_size = 50
-      vars = {
-        region = "regional"
-      }
-    }
-    "reg-cloud-2" = {
-      vcpu = 4
-      ram = 8192
-      ip = "10.200.0.54"
-      storage_size = 50
-      vars = {
-        region = "regional"
+        region = "reg"
       }
     }
     "edge-1" = {
       vcpu = 4
       ram = 8192
-      ip = "10.200.0.55"
+      ip = "10.200.0.71"
       storage_size = 50
       vars = {
         region = "edge"
@@ -78,7 +78,7 @@ vms = {
     "edge-2" = {
       vcpu = 4
       ram = 8192
-      ip = "10.200.0.56"
+      ip = "10.200.0.72"
       storage_size = 50
       vars = {
         region = "edge"
@@ -101,6 +101,9 @@ group_vars = {
     "squid_port" = 3142
     "nginx_port" = 8000
     "data_dir" = "/opt"
+    "first_cp_node" = "main-1"
+    "cp_node_group" = "control"
+    "worker_node_group" = "worker"
   }
   "worker" = {
     "k8s_group_labels" = "['node-role.kubernetes.io/worker=']"

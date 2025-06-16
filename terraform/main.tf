@@ -157,9 +157,7 @@ resource "local_file" "ansible_inventory_file" {
 }
 
 resource "local_file" "ansible_host_vars_files" {
-  for_each = merge(flatten([
-    for group, vms in var.vms : merge( { for vm, config in vms : "${vm}" => config } )
-  ])...)
+  for_each = local.vms
 
   content = templatefile("${path.module}/vars.yml.tftpl",
     {

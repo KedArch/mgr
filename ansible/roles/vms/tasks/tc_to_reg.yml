@@ -1,0 +1,28 @@
+---
+- name: "Add regions with latency"
+  ansible.builtin.command:
+    cmd: "{{ item }}"
+  with_items:
+    - >
+      tc class add dev {{ vm_internal_network_interface }} parent 1:1 classid
+      1:3{{ to_region_index + 1 }} htb rate 1000mbit
+    - >
+      tc qdisc add dev {{ vm_internal_network_interface }} parent 1:3{{ to_region_index + 1 }}
+      handle 3{{ to_region_index + 1 }}: netem delay {{ to_region.value }}ms {{ to_region.value | int // 10 }}ms 10%
+  register: out
+  changed_when: out.rc == 0
+  failed_when: out.rc != 0
+
+- name: "Apply latency to IPs"
+  ansible.builtin.command:
+    cmd: >
+      tc filter add dev {{ vm_internal_network_interface }} protocol ip
+      parent 1: prio {{ ips_index }} u32 match ip dst {{ hostvars[ips]['ansible_host'] }}/32 flowid 1:3{{ to_region_index + 1 }}
+  loop: "{{ groups['vms'] }}"
+  loop_control:
+    loop_var: ips
+    index_var: ips_index
+  register: out
+  changed_when: out.rc == 0
+  failed_when: out.rc != 0
+  when: hostvars[ips].region is defined and hostvars[ips].region == to_region.key

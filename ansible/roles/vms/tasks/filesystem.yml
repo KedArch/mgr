@@ -1,17 +1,17 @@
 ---
-- name: "Create partition"
+- name: "Create partition on additional disk"
   community.general.parted:
     device: /dev/vdb
     number: 1
     flags: []
     state: present
 
-- name: "Create filesystem"
+- name: "Create filesystem on additional disk"
   community.general.filesystem:
     fstype: ext4
     dev: /dev/vdb1
 
-- name: "Mount partition"
+- name: "Mount partition on additional disk"
   ansible.posix.mount:
     fstype: ext4
     src: /dev/vdb1

@@ -1,0 +1,8 @@
+---
+- name: "Include task: tc_to_reg"
+  ansible.builtin.include_tasks: tc_to_reg.yml
+  with_items: "{{ top_region.value | dict2items | sort(attribute='key') }}"
+  loop_control:
+    loop_var: to_region
+    index_var: to_region_index
+  when: to_region.key != region

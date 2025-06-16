@@ -38,4 +38,4 @@
 
 - name: "Apply vars to nodes"
   ansible.builtin.include_tasks: vars.yml
-  when: k3s_uninstall is not defined or not k3s_uninstall and not k3s_binary.stat.exists
+  when: ((k3s_uninstall is not defined or not k3s_uninstall) and not k3s_binary.stat.exists) or k3s_apply_vars

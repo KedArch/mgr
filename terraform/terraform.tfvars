@@ -8,6 +8,7 @@ vms = {
       storage_size = 10
       vars = {
         region = "main"
+        k8s_group_labels = "['node-role.kubernetes.io/main=']"
       }
     }
     "main-2" = {
@@ -17,6 +18,7 @@ vms = {
       storage_size = 10
       vars = {
         region = "main"
+        k8s_node_labels = "['node-role.kubernetes.io/main=']"
       }
     }
     "reg-1" = {
@@ -26,6 +28,7 @@ vms = {
       storage_size = 10
       vars = {
         region = "reg"
+        k8s_node_labels = "['node-role.kubernetes.io/reg=']"
       }
     }
   }
@@ -37,6 +40,8 @@ vms = {
       storage_size = 50
       vars = {
         region = "main"
+        k8s_node_labels = "['node-role.kubernetes.io/main=']"
+        k8s_node_taints = "['node-role.kubernetes.io/main=:NoSchedule']"
       }
     }
     "main-2" = {
@@ -46,6 +51,8 @@ vms = {
       storage_size = 50
       vars = {
         region = "main"
+        k8s_node_labels = "['node-role.kubernetes.io/main=']"
+        k8s_node_taints = "['node-role.kubernetes.io/main=:NoSchedule']"
       }
     }
     "reg-1" = {
@@ -55,6 +62,8 @@ vms = {
       storage_size = 50
       vars = {
         region = "reg"
+        k8s_node_labels = "['node-role.kubernetes.io/reg=']"
+        k8s_node_taints = "['node-role.kubernetes.io/reg=:NoSchedule']"
       }
     }
     "reg-2" = {
@@ -64,6 +73,8 @@ vms = {
       storage_size = 50
       vars = {
         region = "reg"
+        k8s_node_labels = "['node-role.kubernetes.io/reg=']"
+        k8s_node_taints = "['node-role.kubernetes.io/reg=:NoSchedule']"
       }
     }
     "edge-1" = {
@@ -73,6 +84,8 @@ vms = {
       storage_size = 50
       vars = {
         region = "edge"
+        k8s_node_labels = "['node-role.kubernetes.io/edge=']"
+        k8s_node_taints = "['node-role.kubernetes.io/edge=:NoSchedule']"
       }
     }
     "edge-2" = {
@@ -82,6 +95,8 @@ vms = {
       storage_size = 50
       vars = {
         region = "edge"
+        k8s_node_labels = "['node-role.kubernetes.io/edge=']"
+        k8s_node_taints = "['node-role.kubernetes.io/edge=:NoSchedule']"
       }
     }
   }

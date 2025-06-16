@@ -1,0 +1,4 @@
+---
+- name: "Include task: tc.yml"
+  ansible.builtin.include_tasks: tc.yml
+  when: region is defined

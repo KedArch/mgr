@@ -36,10 +36,3 @@
   tags:
     - proxy
     - environment
-
-- name: "Include task: tc"
-  ansible.builtin.include_tasks: tc.yml
-  when: region is defined
-  tags:
-    - tc
-    - latency

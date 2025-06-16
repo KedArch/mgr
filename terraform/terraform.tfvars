@@ -104,7 +104,7 @@ group_vars = {
     "first_cp_node" = "control-main-1"
     "cp_node_group" = "control"
     "worker_node_group" = "worker"
-    "tc_latency" = "{'main': {'reg': '2000', 'edge': '5000'}, 'reg': {'main': '2000', 'edge': '800'}, 'edge': {'main': '5000', 'reg': '800'}}"
+    "tc_latency" = "{'main': {'reg': '1000', 'edge': '2500'}, 'reg': {'main': '1000', 'edge': '400'}, 'edge': {'main': '2500', 'reg': '400'}}"
     "vm_internal_network_interface": "ens4"
   }
   "worker" = {

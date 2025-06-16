@@ -101,7 +101,7 @@ group_vars = {
     "squid_port" = 3142
     "nginx_port" = 8000
     "data_dir" = "/opt"
-    "first_cp_node" = "main-1"
+    "first_cp_node" = "control-main-1"
     "cp_node_group" = "control"
     "worker_node_group" = "worker"
   }

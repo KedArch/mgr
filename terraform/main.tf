@@ -34,6 +34,7 @@ locals {
   network_configs = {
     for vm, config in local.vms: vm => templatefile("${path.module}/cloud-init/network.yaml.tftpl", {
       ip = config.ip
+      vm_internal_network_interface = var.group_vars.all.vm_internal_network_interface
     })
   }
 }

@@ -2,7 +2,7 @@ version: 2
 ethernets:
   ens3:
     dhcp4: yes
-  ens4:
+  ${ vm_internal_network_interface }:
     dhcp4: no
     addresses:
       - ${ ip }/24

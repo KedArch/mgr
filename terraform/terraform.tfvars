@@ -104,6 +104,8 @@ group_vars = {
     "first_cp_node" = "control-main-1"
     "cp_node_group" = "control"
     "worker_node_group" = "worker"
+    "tc_latency" = "{'main': {'reg': '2000', 'edge': '5000'}, 'reg': {'main': '2000', 'edge': '800'}, 'edge': {'main': '5000', 'reg': '800'}}"
+    "vm_internal_network_interface": "ens4"
   }
   "worker" = {
     "k8s_group_labels" = "['node-role.kubernetes.io/worker=']"

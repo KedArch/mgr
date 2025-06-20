@@ -1,0 +1,8 @@
+---
+- name: "Include task: uninstall"
+  ansible.builtin.include_tasks: uninstall.yml
+  when: nomad_uninstall is defined and nomad_uninstall
+
+- name: "Include task: install"
+  ansible.builtin.include_tasks: install.yml
+  when: nomad_uninstall is not defined or not nomad_uninstall

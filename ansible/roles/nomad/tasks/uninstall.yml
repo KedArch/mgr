@@ -1,0 +1,39 @@
+---
+- name: "Disable services"
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  with_items:
+    - nomad
+    - consul
+    - docker
+
+- name: "Remove service files"
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - nomad.service
+    - consul.service
+
+- name: "Remove data dir"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ nomad_data_path }}"
+    - "{{ consul_data_path }}"
+  when: >
+    (nomad_remove_files is defined and nomad_remove_files)
+    or (nomad_remove_data is defined and nomad_remove_data)
+
+- name: "Remove conf dir"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  when: >
+    (nomad_remove_files is defined and nomad_remove_files)
+    or (nomad_remove_conf is defined and nomad_remove_conf)
+  with_items:
+    - "{{ nomad_conf_path }}"
+    - "{{ consul_conf_path }}"

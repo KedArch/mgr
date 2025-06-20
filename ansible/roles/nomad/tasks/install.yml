@@ -1,0 +1,48 @@
+---
+- name: "Set common parameters"
+  ansible.builtin.set_fact:
+    nomad_conf_path: "{{ nomad_root_path ~ '/nomad/conf' }}"
+    nomad_data_path: "{{ nomad_root_path ~ '/nomad/data' }}"
+    consul_conf_path: "{{ nomad_root_path ~ '/consul/conf' }}"
+    consul_data_path: "{{ nomad_root_path ~ '/consul/data' }}"
+    nomad_meta: "{{ lookup('community.general.merge_variables', 'nomad_.*_meta') | default({}) }}"
+
+- name: "Include task: install_binary"
+  ansible.builtin.include_tasks: install_binary.yml
+
+- name: "Include task: paths"
+  ansible.builtin.include_tasks: paths.yml
+
+- name: "Copy node config file"
+  ansible.builtin.template:
+    src: "{{ item.template }}"
+    dest: "{{ item.dest }}/node_config.hcl"
+    mode: "640"
+  with_items:
+    - {"template": "node_nomad_config.hcl.j2", "dest": "{{ nomad_conf_path }}"}
+    - {"template": "node_consul_config.hcl.j2", "dest": "{{ consul_conf_path }}"}
+  register: config
+
+- name: "Copy service files"
+  ansible.builtin.template:
+    src: "service.service"
+    dest: "/etc/systemd/system/{{ item.service }}.service"
+    mode: "644"
+  vars:
+    service: "{{ item.service }}"
+    exec: "{{ item.exec }}"
+  with_items:
+    - {"service": "nomad", "exec": "nomad agent -config={{ nomad_conf_path }}/node_config.hcl"}
+    - {"service": "consul", "exec": "consul agent -config-file={{ consul_conf_path }}/node_config.hcl"}
+  register: service
+
+- name: "Enable and start services"
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    daemon_reload: true
+    state: "{{ 'restarted' if (config.changed or service.changed) else 'started' }}"
+    enabled: true
+  with_items:
+    - nomad
+    - consul
+    - docker

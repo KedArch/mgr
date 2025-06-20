@@ -1,0 +1,6 @@
+---
+- name: "Filter valid nodes"
+  ansible.builtin.include_tasks: proceeding.yml
+  when: >
+    inventory_hostname in groups[nomad_cp_node_group]
+    or inventory_hostname in groups[nomad_worker_node_group]

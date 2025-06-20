@@ -1,0 +1,26 @@
+datacenter = "cluster"
+data_dir = "{{ nomad_data_path }}"
+name = "{{ inventory_hostname}}"
+bind_addr = "0.0.0.0"
+{% if inventory_hostname in groups[nomad_cp_node_group] %}
+advertise {
+  http = "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+  rpc = "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+  serf = "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+}
+server {
+  enabled = true
+  bootstrap_expect = {{ groups[nomad_cp_node_group] | length }}
+}
+{% elif inventory_hostname in groups[nomad_worker_node_group] %}
+client {
+  enabled = true
+  {% if nomad_meta is defined %}
+  meta {
+    {% for key, value in nomad_meta.items() %}
+    {{ key }} = "{{ value }}"
+    {% endfor %}
+  }
+  {% endif %}
+}
+{% endif %}

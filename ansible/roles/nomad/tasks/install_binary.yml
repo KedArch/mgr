@@ -1,0 +1,46 @@
+---
+- name: "Install dependency packages"
+  ansible.builtin.apt:
+    pkg: "{{ nomad_dep_packages }}"
+
+- name: "Check if Nomad binary exists"
+  ansible.builtin.stat:
+    path: /usr/local/bin/nomad
+  register: nomad_binary
+
+- name: "Download Nomad binary"
+  ansible.builtin.get_url:
+    url: "{{ nomad_binary_url }}"
+    dest: "/tmp/nomad.zip"
+    mode: '0644'
+  when: not nomad_binary.stat.exists
+
+- name: "Unzip Nomad binary"
+  ansible.builtin.unarchive:
+    src: /tmp/nomad.zip
+    dest: /usr/local/bin/
+    include:
+      - nomad
+    remote_src: true
+  when: not nomad_binary.stat.exists
+
+- name: "Check if Consul binary exists"
+  ansible.builtin.stat:
+    path: /usr/local/bin/consul
+  register: consul_binary
+
+- name: "Download Consul binary"
+  ansible.builtin.get_url:
+    url: "{{ nomad_consul_binary_url }}"
+    dest: "/tmp/consul.zip"
+    mode: '0644'
+  when: not consul_binary.stat.exists
+
+- name: "Unzip Consul binary"
+  ansible.builtin.unarchive:
+    src: /tmp/consul.zip
+    dest: /usr/local/bin/
+    include:
+      - consul
+    remote_src: true
+  when: not consul_binary.stat.exists

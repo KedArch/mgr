@@ -1,0 +1,15 @@
+---
+- name: "Include playbook: vms"
+  ansible.builtin.import_playbook: vms.yml
+  when: >
+    skip_vms is not defined or not skip_vms
+
+- name: "Configure Nomad"
+  hosts: "{{ ansible_limit | default('vms') }}"
+  become: true
+  roles:
+    - role: nomad
+      nomad_root_path: "{{ data_dir }}"
+      nomad_first_cp_node: "{{ first_cp_node }}"
+      nomad_cp_node_group: "{{ cp_node_group }}"
+      nomad_worker_node_group: "{{ worker_node_group }}"

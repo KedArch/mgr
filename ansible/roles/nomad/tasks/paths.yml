@@ -1,0 +1,11 @@
+---
+- name: "Create dirs of conf and data paths"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "750"
+  with_items:
+    - "{{ nomad_conf_path }}"
+    - "{{ nomad_data_path }}"
+    - "{{ consul_conf_path }}"
+    - "{{ consul_data_path }}"

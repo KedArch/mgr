@@ -1,0 +1,18 @@
+datacenter = "cluster"
+data_dir = "{{ nomad_data_path }}"
+node_name = "{{ inventory_hostname}}"
+bind_addr = "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+{% if inventory_hostname in groups[nomad_cp_node_group] %}
+client_addr = "0.0.0.0"
+server = true
+bootstrap_expect = {{ groups[nomad_cp_node_group] | length }}
+{% elif inventory_hostname in groups[nomad_worker_node_group] %}
+client_addr = "127.0.0.1"
+server = false
+{% endif %}
+retry_join = [{% for name in groups[nomad_cp_node_group] %}
+"{{ hostvars[name]['ansible_host'] }}"{% if not loop.last %},{% endif %}
+{% endfor %}]
+ui_config {
+  enabled = true
+}

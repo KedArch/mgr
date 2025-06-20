@@ -8,7 +8,7 @@ vms = {
       storage_size = 10
       vars = {
         region = "main"
-        k8s_group_labels = "['node-role.kubernetes.io/main=']"
+        k8s_node_labels = "['node-role.kubernetes.io/main=']"
       }
     }
     "main-2" = {
@@ -42,6 +42,7 @@ vms = {
         region = "main"
         k8s_node_labels = "['node-role.kubernetes.io/main=']"
         k8s_node_taints = "['node-role.kubernetes.io/main=:NoSchedule']"
+        nomad_node_meta = "{'region': 'main'}"
       }
     }
     "main-2" = {
@@ -53,6 +54,7 @@ vms = {
         region = "main"
         k8s_node_labels = "['node-role.kubernetes.io/main=']"
         k8s_node_taints = "['node-role.kubernetes.io/main=:NoSchedule']"
+        nomad_node_meta = "{'region': 'main'}"
       }
     }
     "reg-1" = {
@@ -64,6 +66,7 @@ vms = {
         region = "reg"
         k8s_node_labels = "['node-role.kubernetes.io/reg=']"
         k8s_node_taints = "['node-role.kubernetes.io/reg=:NoSchedule']"
+        nomad_node_meta = "{'region': 'reg'}"
       }
     }
     "reg-2" = {
@@ -75,6 +78,7 @@ vms = {
         region = "reg"
         k8s_node_labels = "['node-role.kubernetes.io/reg=']"
         k8s_node_taints = "['node-role.kubernetes.io/reg=:NoSchedule']"
+        nomad_node_meta = "{'region': 'reg'}"
       }
     }
     "edge-1" = {
@@ -86,6 +90,7 @@ vms = {
         region = "edge"
         k8s_node_labels = "['node-role.kubernetes.io/edge=']"
         k8s_node_taints = "['node-role.kubernetes.io/edge=:NoSchedule']"
+        nomad_node_meta = "{'region': 'edge'}"
       }
     }
     "edge-2" = {
@@ -97,6 +102,7 @@ vms = {
         region = "edge"
         k8s_node_labels = "['node-role.kubernetes.io/edge=']"
         k8s_node_taints = "['node-role.kubernetes.io/edge=:NoSchedule']"
+        nomad_node_meta = "{'region': 'edge'}"
       }
     }
   }

@@ -25,7 +25,7 @@
   ansible.builtin.file:
     path: "/etc/rancher"
     state: absent
-  when: conf_path.stat.isdir is defined and conf_path.stat.isdir or conf_path.stat.islnk is defined
+  when: conf_path.stat.isdir is defined and conf_path.stat.isdir or conf_path.stat.islnk is not defined
 
 - name: "Check if data directory exist"
   ansible.builtin.stat:

@@ -36,12 +36,11 @@
     - {"service": "consul", "exec": "consul agent -config-file={{ consul_conf_path }}/node_config.hcl"}
   register: service
 
-- name: "Enable and start services"
+- name: "Start services"
   ansible.builtin.systemd_service:
     name: "{{ item }}"
     daemon_reload: true
     state: "{{ 'restarted' if (config.changed or service.changed) else 'started' }}"
-    enabled: true
   with_items:
     - nomad
     - consul

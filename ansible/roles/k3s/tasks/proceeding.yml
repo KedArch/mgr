@@ -38,4 +38,22 @@
 
 - name: "Apply vars to nodes"
   ansible.builtin.include_tasks: vars.yml
-  when: ((k3s_uninstall is not defined or not k3s_uninstall) and not k3s_binary.stat.exists) or k3s_apply_vars
+  when: ((k3s_uninstall is not defined or not k3s_uninstall) and not k3s_binary.stat.exists)
+
+- name: "Ensure k3s service is active"
+  ansible.builtin.systemd_service:
+    name: k3s
+    state: started
+    enabled: false
+  when: >
+    (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
+    and (inventory_hostname in groups[k3s_cp_node_group])
+
+- name: "Ensure k3s-agent service is active"
+  ansible.builtin.systemd_service:
+    name: k3s-agent
+    state: started
+    enabled: false
+  when: >
+    (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
+    and (inventory_hostname in groups[k3s_worker_node_group])

@@ -8,6 +8,23 @@
 - name: "Configure k3s"
   hosts: "{{ ansible_limit | default('vms') }}"
   become: true
+  pre_tasks:
+    - name: "Disable Nomad if running" # noqa: no-changed-when ignore-errors
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - nomad
+        - consul
+        - docker
+      ignore_errors: true
+    - name: "Write state change to file"
+      delegate_to: localhost
+      become: false
+      ansible.builtin.copy:
+        content: "k3s"
+        dest: "state"
+        mode: "644"
   roles:
     - role: k3s
       k3s_root_path: "{{ data_dir }}"

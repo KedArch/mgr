@@ -7,6 +7,17 @@
 - name: "Configure Nomad"
   hosts: "{{ ansible_limit | default('vms') }}"
   become: true
+  pre_tasks:
+    - name: "Disable k3s if running" # noqa: no-changed-when ignore-errors
+      ansible.builtin.command: k3s-killall.sh
+      ignore_errors: true
+    - name: "Write state change to file"
+      delegate_to: localhost
+      become: false
+      ansible.builtin.copy:
+        content: "nomad"
+        dest: "state"
+        mode: "644"
   roles:
     - role: nomad
       nomad_root_path: "{{ data_dir }}"

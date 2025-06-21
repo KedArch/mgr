@@ -1,6 +1,9 @@
 .ansible
 .vscode
 ansible/inventory
+ansible/state
+test
+creds
 host_ip
 host_user
 host_user_password

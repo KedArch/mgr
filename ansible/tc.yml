@@ -1,3 +1,4 @@
+---
 - name: "Configure latencies"
   hosts: vms
   become: true

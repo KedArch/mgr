@@ -1,0 +1,11 @@
+---
+- name: "Modify inventory"
+  ansible.builtin.add_host:
+    name: host
+    ansible_host: "{{ lookup('ansible.builtin.file', '../host_ip') }}"
+    ansible_user: "{{ lookup('ansible.builtin.file', '../host_user') }}"
+    ansible_become_password: "{{ lookup('ansible.builtin.file', '../host_user_password') }}"
+    host_internal_ip: "{{ host_internal_ip if host_internal_ip is defined else 10.200.0.1 }}"
+    host_vm_network: "{{ host_vm_network if host_vm_network is defined else 10.200.0.0/16 }}"
+    nginx_port: "{{ nginx_port if nginx_port is defined else 8000 }}"
+    squid_port: "{{ squid_port if squid_port is defined else 3142 }}"

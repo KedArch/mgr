@@ -1,10 +1,9 @@
-- name: "Modify inventory host variables"
-  ansible.builtin.import_playbook: _modify_inventory_host.yml
-  tags:
-    - always
-
+---
 - name: "Configure host"
   hosts: host
   become: true
+  pre_tasks:
+    - name: "Include task: modify_host_vars"
+      ansible.builtin.include_tasks: tasks/modify_host_vars.yml
   roles:
     - host

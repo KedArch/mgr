@@ -1,3 +1,4 @@
+---
 - name: "Prepare vms"
   hosts: vms
   become: true

@@ -1,9 +1,9 @@
 ---
-- name: "Modify inventory host variables"
-  ansible.builtin.import_playbook: _modify_inventory_host.yml
-
 - name: SSH Port Forwarding with tmux
   hosts: localhost
+  pre_tasks:
+    - name: "Include task: modify_host_vars"
+      ansible.builtin.include_tasks: tasks/modify_host_vars.yml
   tasks:
     - name: Start a new tmux session for SSH port forwarding # noqa: no-changed-when ignore-errors
       vars:

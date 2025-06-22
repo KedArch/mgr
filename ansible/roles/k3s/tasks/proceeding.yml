@@ -18,6 +18,14 @@
   ansible.builtin.include_tasks: paths.yml
   when: k3s_uninstall is not defined or not k3s_uninstall and not k3s_binary.stat.exists
 
+- name: "Configure registry"
+  ansible.builtin.template:
+    dest: "{{ k3s_conf_path }}/k3s/registries.yaml"
+    src: registries.yaml.j2
+    mode: "640"
+  when: k3s_uninstall is not defined or not k3s_uninstall and not k3s_binary.stat.exists
+  register: registry
+
 - name: "Find control plane endpoint"
   ansible.builtin.set_fact:
     k3s_cp_endpoint: "{{ hostvars[k3s_first_cp_node]['ansible_host'] }}"
@@ -43,7 +51,7 @@
 - name: "Ensure k3s service is active"
   ansible.builtin.systemd_service:
     name: k3s
-    state: started
+    state: "{{ 'restarted' if registry.changed else 'started' }}"
     enabled: false
   when: >
     (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
@@ -52,7 +60,7 @@
 - name: "Ensure k3s-agent service is active"
   ansible.builtin.systemd_service:
     name: k3s-agent
-    state: started
+    state: "{{ 'restarted' if registry.changed else 'started' }}"
     enabled: false
   when: >
     (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)

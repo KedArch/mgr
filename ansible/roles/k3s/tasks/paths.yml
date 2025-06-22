@@ -63,3 +63,11 @@
     src: "{{ k3s_conf_path }}"
     dest: "/etc/rancher"
     state: link
+
+- name: "Create some dirs if they are not existing yet"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "750"
+  with_items:
+    - "{{ k3s_conf_path }}/k3s"

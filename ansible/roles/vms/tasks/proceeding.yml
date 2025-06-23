@@ -36,3 +36,7 @@
   tags:
     - proxy
     - environment
+
+- name: "Update APT cache"
+  ansible.builtin.apt:
+    update_cache: true

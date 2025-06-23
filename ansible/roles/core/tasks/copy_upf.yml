@@ -1,0 +1,69 @@
+---
+- name: "Find required libs"
+  ansible.builtin.find:
+    paths: "{{ data_dir }}/open5gs/build/lib"
+    patterns:
+      - "*{{ core_git_version[1:] }}"
+    recurse: true
+  register: required_libs
+
+- name: "Find subproject libs"
+  ansible.builtin.find:
+    paths: "{{ data_dir }}/open5gs/build/subprojects"
+    patterns:
+      - "*.so"
+    recurse: true
+  register: subproject_libs
+
+- name: "Ensure cache dir exists"
+  delegate_to: localhost
+  become: false
+  ansible.builtin.file:
+    path: "cache"
+    state: directory
+    mode: "755"
+
+- name: "Copy found libs"
+  ansible.builtin.fetch:
+    src: "/lib/x86_64-linux-gnu/{{ item.path | basename }}"
+    dest: "cache/{{ item.path | basename }}"
+    flat: true
+  with_items: "{{ required_libs.files }}"
+
+- name: "Copy found libs"
+  ansible.builtin.fetch:
+    src: "/lib/x86_64-linux-gnu/{{ item.path | basename }}"
+    dest: "cache/{{ item.path | basename }}"
+    flat: true
+  with_items: "{{ subproject_libs.files }}"
+
+- name: "Copy config"
+  ansible.builtin.fetch:
+    src: "/etc/open5gs/upf.yaml"
+    dest: "cache/upf.yaml"
+    flat: true
+
+- name: "Copy binary"
+  ansible.builtin.fetch:
+    src: "/usr/bin/open5gs-upfd"
+    dest: "cache/open5gs-upfd"
+    flat: true
+
+- name: "Copy service"
+  ansible.builtin.fetch:
+    src: "{{ data_dir }}/open5gs/configs/systemd/open5gs-upfd.service.in"
+    dest: "cache/open5gs-upfd.service"
+    flat: true
+
+- name: "Replace vars in service file"
+  delegate_to: localhost
+  become: false
+  ansible.builtin.replace:
+    dest: "cache/open5gs-upfd.service"
+    regexp: "{{ var.to_replace }}"
+    replace: "{{ var.replacement }}"
+  with_items:
+    - {"to_replace": "@bindir@", "replacement": "/usr/bin"}
+    - {"to_replace": "@sysconfdir@", "replacement": "/etc"}
+  loop_control:
+    loop_var: var

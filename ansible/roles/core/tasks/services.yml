@@ -1,0 +1,18 @@
+---
+- name: "Replace vars in service file"
+  ansible.builtin.replace:
+    dest: "{{ data_dir }}/open5gs/configs/systemd/open5gs-{{ item }}d.service.in"
+    regexp: "{{ var.to_replace }}"
+    replace: "{{ var.replacement }}"
+  with_items:
+    - {"to_replace": "@bindir@", "replacement": "/usr/bin"}
+    - {"to_replace": "@sysconfdir@", "replacement": "/etc"}
+  loop_control:
+    loop_var: var
+
+- name: "Copy systemd service"
+  ansible.builtin.copy:
+    src: "{{ data_dir }}/open5gs/configs/systemd/open5gs-{{ item }}d.service.in"
+    dest: "/etc/systemd/system/open5gs-{{ item }}d.service"
+    mode: "644"
+    remote_src: true

@@ -1,0 +1,67 @@
+---
+- name: "Check if git dir exists"
+  ansible.builtin.stat:
+    path: "{{ data_dir }}/open5gs"
+  register: git
+
+- name: "Clone core git repository"
+  ansible.builtin.git:
+    repo: "{{ core_git_repo }}"
+    dest: "{{ data_dir }}/open5gs"
+    version: "{{ core_git_version }}"
+  when: not git.stat.exists
+
+- name: "Build core" # noqa: no-changed-when
+  ansible.builtin.shell:
+    cmd: meson build --prefix=/ && ninja -C build && cd build && ninja install
+    chdir: "{{ data_dir }}/open5gs"
+
+- name: "Configure AMF" # noqa: jinja[spacing]
+  ansible.builtin.replace:
+    path: "/etc/open5gs/amf.yaml"
+    regexp: "{{ item.to_replace }}"
+    replace: "{{ item.replacement }}"
+  with_items:
+    - "to_replace": "ngap:\n( *)- addr: .*"
+      "replacement": "ngap:\r\\1- addr: {{ hostvars[core]['ansible_host'] }}"
+
+- name: "Configure SMF" # noqa: jinja[spacing]
+  ansible.builtin.replace:
+    path: "/etc/open5gs/smf.yaml"
+    regexp: "{{ item.to_replace }}"
+    replace: "{{ item.replacement }}"
+  with_items:
+    - "to_replace": "pfcp:\n( *)- addr: .*\n.*- addr: .*"
+      "replacement": "pfcp:\r\\1- addr: {{ hostvars[core]['ansible_host'] }}"
+    - "to_replace": "upf:\n( *)pfcp:\n( *)- addr: .*"
+      "replacement": "upf:\r\\1pfcp:\r\\2- addr: {{ hostvars[upf]['ansible_host'] }}"
+
+- name: "Process service files"
+  ansible.builtin.include_tasks: services.yml
+  with_items: "{{ core_nf_list }}"
+
+- name: "Reload systemd daemon"
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: "Run Open5GS services"
+  ansible.builtin.systemd_service:
+    name: "open5gs-{{ item }}d"
+    state: restarted
+  with_items: "{{ core_nf_list }}"
+
+- name: "Get open5gs-dbctl"
+  ansible.builtin.get_url:
+    url: "{{ core_dbctl_url }}"
+    dest: /usr/bin/open5gs-dbctl
+    mode: "755"
+
+- name: "Deregister UE to ensure one entry in DB" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: open5gs-dbctl remove 001010000000001
+
+- name: "Register UE" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: >
+      open5gs-dbctl add 001010000000001
+      465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA

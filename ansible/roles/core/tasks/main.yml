@@ -1,0 +1,4 @@
+---
+- name: "Filter valid nodes"
+  ansible.builtin.include_tasks: proceeding.yml
+  when: open5gs is defined and open5gs

@@ -1,0 +1,43 @@
+---
+- name: "Install required packages"
+  ansible.builtin.apt:
+    pkg: "{{ core_pkg_deps }}"
+
+- name: "Install mongodb"
+  ansible.builtin.include_tasks: mongodb.yml
+  when: inventory_hostname == core
+
+- name: "Create required group"
+  ansible.builtin.group:
+    name: open5gs
+    gid: 1100
+    state: present
+
+- name: "Create required user"
+  ansible.builtin.user:
+    user: open5gs
+    uid: 1100
+    group: open5gs
+    state: present
+
+- name: "Create required directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "775"
+    group: open5gs
+  with_items:
+    - /etc/open5gs
+    - /var/log/open5gs
+
+- name: "Build core"
+  ansible.builtin.include_tasks: core.yml
+  when: inventory_hostname == core
+
+- name: "Copy UPF files to localhost"
+  ansible.builtin.include_tasks: copy_upf.yml
+  when: inventory_hostname == core
+
+- name: "Copy UPF files to UPF machine"
+  ansible.builtin.include_tasks: upf.yml
+  when: inventory_hostname == upf

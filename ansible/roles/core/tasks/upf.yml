@@ -1,0 +1,92 @@
+---
+- name: "Set facts"
+  ansible.builtin.set_fact:
+    required_libs: "{{ hostvars[core].required_libs }}"
+    subproject_libs: "{{ hostvars[core].subproject_libs }}"
+
+- name: "Copy found required libs"
+  ansible.builtin.copy:
+    src: "cache/{{ item.path | basename }}"
+    dest: "/lib/x86_64-linux-gnu/{{ item.path | basename }}"
+    mode: "644"
+  with_items: "{{ required_libs.files }}"
+
+- name: "Copy found subproject libs"
+  ansible.builtin.copy:
+    src: "cache/{{ item.path | basename }}"
+    dest: "/lib/x86_64-linux-gnu/{{ item.path | basename }}"
+    mode: "644"
+  with_items: "{{ subproject_libs.files }}"
+
+- name: "Create so ver symlinks"
+  vars:
+    so_file: "{{ item.path | basename }}"
+    so_file_main: "{{ (so_file | split('.'))[0] }}"
+    so_file_main_ver: "{{ (so_file | split('.'))[2] }}"
+  ansible.builtin.file:
+    src: "/lib/x86_64-linux-gnu/{{ so_file }}"
+    dest: "/lib/x86_64-linux-gnu/{{ so_file_main }}.so.{{ so_file_main_ver }}"
+    state: link
+  with_items: "{{ required_libs.files }}"
+
+- name: "Create so symlinks"
+  vars:
+    so_file: "{{ item.path | basename }}"
+    so_file_main: "{{ (so_file | split('.'))[0] }}"
+    so_file_main_ver: "{{ (so_file | split('.'))[2] }}"
+  ansible.builtin.file:
+    src: "/lib/x86_64-linux-gnu/{{ so_file_main }}.so.{{ so_file_main_ver }}"
+    dest: "/lib/x86_64-linux-gnu/{{ so_file_main }}.so"
+    state: link
+  with_items: "{{ required_libs.files }}"
+
+- name: "Copy config"
+  ansible.builtin.copy:
+    src: "cache/upf.yaml"
+    dest: "/etc/open5gs/upf.yaml"
+    mode: "644"
+
+- name: "Configure UPF" # noqa: jinja[spacing]
+  ansible.builtin.replace:
+    path: "/etc/open5gs/upf.yaml"
+    regexp: "{{ item.to_replace }}"
+    replace: "{{ item.replacement }}"
+  with_items:
+    - "to_replace": "pfcp:\n( *)- addr: .*"
+      "replacement": "pfcp:\r\\1- addr: {{ hostvars[upf]['ansible_host'] }}"
+    - "to_replace": "gtpu:\n( *)- addr: .*"
+      "replacement": "gtpu:\r\\1- addr: {{ hostvars[upf]['ansible_host'] }}"
+
+- name: "Copy binary"
+  ansible.builtin.copy:
+    src: "cache/open5gs-upfd"
+    dest: "/usr/bin/open5gs-upfd"
+    mode: "755"
+
+- name: "Copy service"
+  ansible.builtin.copy:
+    src: "cache/open5gs-upfd.service"
+    dest: "/etc/systemd/system/open5gs-upfd.service"
+    mode: "644"
+  register: service
+
+- name: "Create tun device" # noqa: no-changed-when ignore-errors
+  ansible.builtin.command:
+    cmd: "{{ item }}"
+  with_items:
+    - ip tuntap add name ogstun mode tun
+    - ip addr add 10.45.0.1/16 dev ogstun
+    - ip addr add 2001:db8:cafe::1/48 dev ogstun
+    - ip link set ogstun up
+    - sysctl -w net.ipv4.ip_forward=1
+    - sysctl -w net.ipv6.conf.all.forwarding=1
+    - iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE
+    - ip6tables -t nat -A POSTROUTING -s 2001:db8:cafe::/48 ! -o ogstun -j MASQUERADE
+  ignore_errors: true
+
+- name: "Start UPF" # noqa: no-handler
+  ansible.builtin.systemd_service:
+    name: open5gs-upfd
+    state: restarted
+    daemon_reload: true
+  when: service.changed

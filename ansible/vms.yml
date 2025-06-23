@@ -1,6 +1,6 @@
 ---
 - name: "Prepare vms"
-  hosts: vms
+  hosts: "{{ ansible_limit | default('vms') }}"
   become: true
   roles:
     - vms

@@ -1,6 +1,6 @@
 ---
 - name: "Configure latencies"
-  hosts: vms
+  hosts: "{{ ansible_limit | default('vms') }}"
   become: true
   roles:
     - tc

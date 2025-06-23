@@ -115,6 +115,10 @@ resource "libvirt_domain" "vm" {
   vcpu = each.value.vcpu
   memory = each.value.ram
   cloudinit = libvirt_cloudinit_disk.init[each.key].id
+  
+  cpu {
+    mode = "host-model"
+  }
 
   console {
     type = "pty"

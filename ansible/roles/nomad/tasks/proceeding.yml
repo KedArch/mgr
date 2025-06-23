@@ -7,7 +7,7 @@
   ansible.builtin.include_tasks: install.yml
   when: nomad_uninstall is not defined or not nomad_uninstall
 
-- name: "Ensure k3s-agent service is active"
+- name: "Ensure services are active"
   ansible.builtin.systemd_service:
     name: "{{ item }}"
     state: started

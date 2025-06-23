@@ -104,8 +104,28 @@ vms = {
     "ue" = {
       vcpu = 2
       ram = 2048
+      ip = "10.200.0.111"
+      storage_size = 10
+    }
+    "core" = {
+      vcpu = 2
+      ram = 2048
       ip = "10.200.0.101"
       storage_size = 10
+      vars = {
+        region = "reg"
+        open5gs = true
+      }
+    }
+    "upf" = {
+      vcpu = 2
+      ram = 2048
+      ip = "10.200.0.102"
+      storage_size = 10
+      vars = {
+        region = "edge"
+        open5gs = true
+      }
     }
   }
 }
@@ -124,5 +144,9 @@ group_vars = {
   }
   "worker" = {
     "k8s_group_labels" = "['node-role.kubernetes.io/worker=']"
+  }
+  "other" = {
+    upf = "other-upf"
+    core = "other-core"
   }
 }

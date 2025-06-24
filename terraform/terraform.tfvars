@@ -108,8 +108,8 @@ vms = {
       storage_size = 10
     }
     "core" = {
-      vcpu = 2
-      ram = 2048
+      vcpu = 4
+      ram = 4096
       ip = "10.200.0.101"
       storage_size = 10
       vars = {

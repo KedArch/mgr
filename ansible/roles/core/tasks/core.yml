@@ -52,6 +52,7 @@
   ansible.builtin.systemd_service:
     name: "open5gs-{{ item }}d"
     state: restarted
+    enabled: true
   with_items: "{{ core_nf_list }}"
 
 - name: "Get open5gs-dbctl"

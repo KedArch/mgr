@@ -89,4 +89,5 @@
     name: open5gs-upfd
     state: restarted
     daemon_reload: true
+    enabled: true
   when: service.changed

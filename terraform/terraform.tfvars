@@ -148,5 +148,6 @@ group_vars = {
   "other" = {
     upf = "other-upf"
     core = "other-core"
+    ue = "other-ue"
   }
 }

@@ -1,0 +1,18 @@
+---
+gnb_pkg_deps:
+  - cmake
+  - make
+  - gcc
+  - g++
+  - pkg-config
+  - libfftw3-dev
+  - libmbedtls-dev
+  - libsctp-dev
+  - libyaml-cpp-dev
+  - libgtest-dev
+  - libbackward-cpp-dev
+  - libzmq3-dev
+  - libczmq-dev
+gnb_git_repo: https://github.com/KedArch/srsRAN_Project
+gnb_git_version: main
+gnb_git_dir: srsRAN_Project

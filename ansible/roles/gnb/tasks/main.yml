@@ -1,0 +1,68 @@
+---
+- name: "Ensure cache dir exists"
+  ansible.builtin.file:
+    path: cache
+
+- name: "Check if git dir exists"
+  ansible.builtin.stat:
+    path: "cache/srsran"
+  register: git
+
+- name: "Clone core git repository"
+  ansible.builtin.git:
+    repo: "{{ gnb_git_repo }}"
+    dest: "cache/{{ gnb_git_dir }}"
+    version: "{{ gnb_git_version }}"
+  when: not git.stat.exists
+
+- name: "Render base image Dockerfile"
+  ansible.builtin.template:
+    src: Dockerfile-base.j2
+    dest: cache/Dockerfile-base
+    mode: "644"
+
+- name: "Build base image"
+  containers.podman.podman_image:
+    name: base
+    state: build
+    path: "cache/{{ gnb_git_dir }}"
+    build:
+      file: cache/Dockerfile-base
+
+- name: "Render builder image Dockerfile"
+  ansible.builtin.template:
+    src: Dockerfile-build.j2
+    dest: cache/Dockerfile-build
+    mode: "644"
+
+- name: "Build builder image"
+  containers.podman.podman_image:
+    name: builder
+    state: build
+    path: "cache/{{ gnb_git_dir }}"
+    build:
+      file: cache/Dockerfile-build
+
+- name: "Render CU/DU image Dockerfile"
+  vars:
+    app: "{{ item }}"
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: cache/Dockerfile-{{ item }}
+    mode: "644"
+  with_items:
+    - cu
+    - du
+
+- name: "Build CU/DU images"
+  containers.podman.podman_image:
+    name: "{{ hostvars['host']['ansible_host'] }}:5000/mgr/{{ item }}"
+    state: build
+    path: "cache/{{ gnb_git_dir }}"
+    build:
+      file: "cache/Dockerfile-{{ item }}"
+    push: true
+    validate_certs: false
+  with_items:
+    - cu
+    - du

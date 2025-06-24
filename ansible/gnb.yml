@@ -1,0 +1,5 @@
+---
+- name: "Build gNB images"
+  hosts: localhost
+  roles:
+    - gnb

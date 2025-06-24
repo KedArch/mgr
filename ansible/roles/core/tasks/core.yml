@@ -63,10 +63,10 @@
 
 - name: "Deregister UE to ensure one entry in DB" # noqa: no-changed-when
   ansible.builtin.command:
-    cmd: open5gs-dbctl remove 001010000000001
+    cmd: open5gs-dbctl remove 001010123456780
 
 - name: "Register UE" # noqa: no-changed-when
   ansible.builtin.command:
     cmd: >
-      open5gs-dbctl add 001010000000001
-      465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA
+      open5gs-dbctl add 001010123456780
+      00112233445566778899aabbccddeeff 63BFA50EE6523365FF14C1F45F88737D

@@ -1,0 +1,14 @@
+---
+- name: "Add orchestration backend"
+  ansible.builtin.blockinfile:
+    path: /etc/haproxy/haproxy.cfg
+    state: present
+    block: "{{ ue_haproxy_additional_config }}"
+  register: config
+
+- name: "Ensure haproxy is started" # noqa: no-handler
+  ansible.builtin.systemd_service:
+    name: haproxy
+    state: restarted
+    enabled: true
+  when: config.changed

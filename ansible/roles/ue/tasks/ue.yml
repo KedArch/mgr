@@ -1,0 +1,51 @@
+---
+- name: "Check if git dir exists"
+  ansible.builtin.stat:
+    path: "{{ data_dir }}/srsran4g"
+  register: git
+
+- name: "Clone git repository"
+  ansible.builtin.git:
+    repo: "{{ ue_git_repo }}"
+    dest: "{{ data_dir }}/srsran4g"
+    version: "{{ ue_git_version }}"
+  when: not git.stat.exists
+
+- name: "Disable unused options"
+  ansible.builtin.replace:
+    path: "{{ data_dir }}/srsran4g/CMakeLists.txt"
+    regexp: "{{ item.to_replace }}"
+    replace: "{{ item.replacement }}"
+  with_items:
+    - "to_replace": "option\\(ENABLE_SRSENB( *)\"([^\"]*)\"( *) .*"
+      "replacement": "option(ENABLE_SRSENB\\1\"\\2\"\\3 OFF)"
+    - "to_replace": "option\\(ENABLE_SRSEPC( *)\"([^\"]*)\"( *) .*"
+      "replacement": "option(ENABLE_SRSEPC\\1\"\\2\"\\3 OFF)"
+
+- name: "Build UE" # noqa: no-changed-when
+  ansible.builtin.shell:
+    cmd: mkdir -p build && cd build && cmake ../ && make -j `nproc`
+    chdir: "{{ data_dir }}/srsran4g"
+
+- name: "Make symlink to binary"
+  ansible.builtin.file:
+    src: "{{ data_dir }}/srsran4g/build/srsue/src/srsue"
+    dest: "/usr/bin/srsue"
+    state: link
+
+- name: "Ensure srsran conf dir exists"
+  ansible.builtin.file:
+    path: "/etc/srsran"
+    state: directory
+    mode: "644"
+
+- name: "Configure UE"
+  ansible.builtin.template:
+    src: "ue_zmq.conf.j2"
+    dest: "/etc/srsran/ue.conf"
+    mode: "644"
+
+- name: "Configure netns" # noqa: no-changed-when ignore-errors
+  ansible.builtin.command:
+    cmd: ip netns add ue1
+  ignore_errors: true

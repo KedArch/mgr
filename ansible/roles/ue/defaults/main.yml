@@ -1,0 +1,28 @@
+---
+ue_pkg_deps:
+  - haproxy
+  - build-essential
+  - cmake
+  - libfftw3-dev
+  - libmbedtls-dev
+  - libboost-program-options-dev
+  - libconfig++-dev
+  - libsctp-dev
+  - libzmq3-dev
+  - libczmq-dev
+ue_haproxy_additional_config: |
+  # Frontend configuration
+  frontend front
+      bind *:2000
+      mode tcp
+      default_backend redirect_backend
+
+  # Backend configuration
+  backend redirect_backend
+  {% for host in groups[ue_backend_node_group] %}
+  {% if hostvars[host].region == ue_gnb_region %}
+      server {{ host }} {{ hostvars[host]['ansible_host'] }}:2000 check
+  {% endif %}
+  {% endfor %}
+ue_git_repo: https://github.com/KedArch/srsRAN_4G
+ue_git_version: master

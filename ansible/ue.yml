@@ -1,0 +1,11 @@
+---
+- name: "Configure UE"
+  hosts: other
+  become: true
+  roles:
+    - role: vms
+      when: skip_vms is not defined or not skip_vms
+    - role: ue
+      vars:
+        ue_backend_node_group: "{{ worker_node_group }}"
+        ue_gnb_region: 'edge'

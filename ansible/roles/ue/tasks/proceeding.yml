@@ -1,0 +1,10 @@
+---
+- name: "Install required packages"
+  ansible.builtin.apt:
+    pkg: "{{ ue_pkg_deps }}"
+
+- name: "Configure haproxy"
+  ansible.builtin.include_tasks: haproxy.yml
+
+- name: "Build UE"
+  ansible.builtin.include_tasks: ue.yml

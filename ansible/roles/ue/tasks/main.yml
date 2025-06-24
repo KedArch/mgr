@@ -1,0 +1,4 @@
+---
+- name: "Filter valid nodes"
+  ansible.builtin.include_tasks: proceeding.yml
+  when: ue is defined and inventory_hostname == ue

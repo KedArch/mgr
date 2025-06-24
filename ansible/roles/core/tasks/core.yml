@@ -24,6 +24,10 @@
   with_items:
     - "to_replace": "ngap:\n( *)- addr: .*"
       "replacement": "ngap:\r\\1- addr: {{ hostvars[core]['ansible_host'] }}"
+    - "to_replace": "^( *)mcc: .*"
+      "replacement": "\\1mcc: 001"
+    - "to_replace": "^( *)mnc: .*"
+      "replacement": "\\1mnc: 01"
 
 - name: "Configure SMF" # noqa: jinja[spacing]
   ansible.builtin.replace:

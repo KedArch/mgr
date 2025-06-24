@@ -11,20 +11,9 @@
     version: "{{ ue_git_version }}"
   when: not git.stat.exists
 
-- name: "Disable unused options"
-  ansible.builtin.replace:
-    path: "{{ data_dir }}/srsran4g/CMakeLists.txt"
-    regexp: "{{ item.to_replace }}"
-    replace: "{{ item.replacement }}"
-  with_items:
-    - "to_replace": "option\\(ENABLE_SRSENB( *)\"([^\"]*)\"( *) .*"
-      "replacement": "option(ENABLE_SRSENB\\1\"\\2\"\\3 OFF)"
-    - "to_replace": "option\\(ENABLE_SRSEPC( *)\"([^\"]*)\"( *) .*"
-      "replacement": "option(ENABLE_SRSEPC\\1\"\\2\"\\3 OFF)"
-
 - name: "Build UE" # noqa: no-changed-when
   ansible.builtin.shell:
-    cmd: mkdir -p build && cd build && cmake ../ && make -j `nproc`
+    cmd: mkdir -p build && cd build && cmake ../ -DENABLE_SRSENB=0 -DENABLE_SRSEPC=0 && make -j `nproc`
     chdir: "{{ data_dir }}/srsran4g"
 
 - name: "Make symlink to binary"

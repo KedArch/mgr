@@ -1,0 +1,106 @@
+job "{{ component }}" {
+  datacenters = ["mgr"]
+  type = "service"
+
+  group "{{ component }}-group" {
+    count = 1
+
+    {% if affinity exists %}
+    constraint {
+      attribute = "region"
+      operator  = "equals"
+      value     = "{{ affinity }}"
+    }
+    {% endif %}
+
+    {% if init exists %}
+    task "{{ component }}-init" {
+      driver = "docker"
+      config {
+        image = "{{ host_internal_ip }}:5000/{{ manifests_repo }}/{{ component }}:latest"
+        force_pull = true
+        command = "{{ init }}"
+      }
+
+      env {
+        {% if env exists %}
+        {% for name, value in env %}
+        "{{ name }}" = "{{ value }}"
+        {% endfor %}
+        {% endif %}
+      }
+
+      volume_mount {
+        {% if volumes is defined %}
+        {% for volume in volumes %}
+        {% if volume.where is not defined or volume.where == "init" %}
+        volume      = "{{ volume.name }}"
+        destination = "{{ volume.dest }}"
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+      }
+    }
+    {% endif %}
+
+    task "{{ component }}" {
+      driver = "docker"
+      config {
+        image = "{{ host_internal_ip }}:5000/{{ component }}:latest"
+        force_pull = true
+      }
+
+      # Define ports
+      {% if ports is defined %}
+      {% for port in ports %}
+      port "${port.number}" {
+        static = true
+      }
+      {% endfor %}
+      {% endif %}
+
+      volume_mount {
+        {% if volumes is defined %}
+        {% for volume in volumes %}
+        {% if volume.where is not defined or volume.where == "main" %}
+        volume      = "{{ volume.name }}"
+        destination = "{{ volume.dest }}"
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+      }
+    }
+
+    # Define volumes
+    {% if volumes is defined %}
+    {% for volume in volumes %}
+    volume "{{ volume.name }}" {
+      type = "host"
+      source = "{{ volume.host }}"
+    }
+    {% endfor %}
+    {% endif %}
+  }
+
+  # Service definition for ClusterIP equivalent
+  {% if ports is defined %}
+  service {
+    name = "{{ component }}-service"
+    tags = ["service"]
+    {% for port in ports %}
+    port = "${port.number}"  # Adjust based on your service port
+    {% endfor %}
+  }
+  {% endif %}
+
+  # Service definition for NodePort equivalent
+  {% if nodeports exists %}
+  service {
+    name = "{{ component }}-node-service"
+    tags = ["nodeport"]
+    {% for port in nodeports %}
+    port = "${port.number}"  # Adjust based on your node port
+    {% endfor %}
+  }
+  {% endif %}
+}

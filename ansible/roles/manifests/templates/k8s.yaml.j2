@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ component }}"
+  labels:
+    component: "{{ component }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: "{{ component }}"
+  template:
+    metadata:
+      labels:
+        component: "{{ component }}"
+    spec:
+      {% if affinity exists %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "node-role.kubernetes.io/{{ affinity }}"
+                operator: exists
+      {% endif %}
+      {% if init exists %}
+      initContainers:
+        - name: "{{ component }}-init" 
+          image: "{{ host_internal_ip }}:5000/{{ manifests_repo }}/{{ component }}:latest"
+          imagePullPolicy: Always
+          {% if env exists %}
+          env:
+            {% for name, value in env %}
+            - name: "{{ name }}"
+              value: "{{ value }}"
+            {% endfor %}
+          {% endif %}
+          command: ["{{ init }}"]
+          {% if volumes is defined %}
+          volumeMounts:
+            {% for volume in volumes %}
+            {% if volume.where is not defined or volume.where == "init" %}
+              - mountPath: "{{ volume.dest }}"
+                name: "{{ volume.name }}"
+            {% endif %}
+            {% endfor %}
+          {% endif %}
+      {% endif %}
+      containers:
+        - name: "{{ component }}"
+          image: "{{ host_internal_ip }}:5000/{{ component }}:latest"
+          imagePullPolicy: Always
+          {% if volumes is defined %}
+          volumeMounts:
+            {% for volume in volumes %}
+            {% if volume.where is not defined or volume.where == "main" %}
+              - mountPath: "{{ volume.dest }}"
+                name: "{{ volume.name }}"
+            {% endif %}
+            {% endfor %}
+          {% endif %}
+      {% if volumes is defined %}
+      volumes:
+        {% for volume in volumes %}
+        - name: "{{ volume.name }}"
+          hostPath:
+            path: "{{ volume.host }}"
+        {% endfor %}
+      {% endif %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ component }}-service"
+spec:
+  type: ClusterIP
+  selector:
+    component: "{{ component }}"
+  ports:
+    {% for port in ports %}
+    - protocol: "{{ port.type }}"
+      port: "{{ port.number }}"
+      targetPort: "{{ port.number }}"
+    {% endfor %}
+{% if nodeports exists %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ component }}-node-service"
+spec:
+  type: NodePort
+  selector:
+    component: "{{ component }}"
+  ports:
+    {% for port in nodeports %}
+    - protocol: "{{ port.type }}"
+      port: "{{ port.number }}"
+      targetPort: "{{ port.number }}"
+      nodePort: "{{ port.number }}"
+    {% endfor %}
+{% endif %}

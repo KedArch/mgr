@@ -1,0 +1,9 @@
+---
+- name: "Configure manifests"
+  hosts: "{{ ansible_limit | default('vms') }}"
+  become: true
+  roles:
+    - role: manifests
+      vars:
+        orchestrator: "{{ lookup('ansible.builtin.file', 'state') }}"
+

@@ -1,0 +1,39 @@
+---
+manifests_repo: mgr
+manifests_list:
+  - component: srscu
+    ports:
+      - type: SCTP
+        number: 38472
+    env:
+      AMF_ADDR: "{{ hostvars[core]['ansible_host'] }}"
+    affinity: reg
+    volumes:
+      - name: script
+        host: "{{ data_dir }}/volumes/srscu.sh"
+        dest: "/script.sh"
+        where: init
+      - name: config
+        host: "{{ data_dir }}/volumes/srscu.yaml"
+        dest: "/etc/srscu.yaml.in"
+  - component: srsdu
+    ports:
+      - type: SCTP
+        number: 38472
+      - type: UDP
+        number: 2152
+    nodeports:
+      - type: TCP
+        number: 2000
+    env:
+      CU_CP_ADDR: srscu-service
+      UE_ADDR: "{{ hostvars[ue]['ansible_host'] }}"
+    affinity: edge
+    volumes:
+      - name: script
+        host: "{{ data_dir }}/volumes/srsdu.sh"
+        dest: "/script.sh"
+        where: init
+      - name: config
+        host: "{{ data_dir }}/volumes/srsdu.yaml"
+        dest: "/etc/srsdu.yaml.in"

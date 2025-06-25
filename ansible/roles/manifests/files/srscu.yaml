@@ -1,0 +1,17 @@
+cu_cp:
+  amf:
+    addr: AMF_ADDR
+    bind_addr: 0.0.0.0
+    supported_tracking_areas:
+      - tac: 1
+        plmn_list:
+          - plmn: "00101"
+            tai_slice_support_list:
+              - sst: 1
+  f1ap:
+    bind_addr: 0.0.0.0
+cu_up:
+  f1u:
+    socket:
+      -
+        bind_addr: 0.0.0.0

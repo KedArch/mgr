@@ -1,3 +1,42 @@
 ---
-- name: "Proceed"
-  ansible.builtin.include_tasks: proceeding.yml
+- name: "Disable ufw"
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: false
+  tags:
+    - ufw
+    - firewall
+
+- name: "Replace sources.list"
+  ansible.builtin.replace:
+    path: /etc/apt/sources.list
+    regexp: "^deb http[^ ]*"
+    replace: "deb http://ubuntu.task.gda.pl/ubuntu"
+  tags:
+    - apt
+    - packages
+    - sources
+
+- name: "Include task: filesystem"
+  ansible.builtin.include_tasks: filesystem.yml
+  tags:
+    - filesystem
+    - disk
+
+- name: "Add proxy to environment"
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    regexp: "^{{ item.key }}"
+    line: "{{ item.key }}={{ item.value }}"
+  with_items:
+    - { "key": "http_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+    - { "key": "https_proxy", "value": "http://{{ host_internal_ip }}:{{ squid_port }}" }
+    - { "key": "no_proxy", "value": "localhost,127.0.0.1,{{ host_vm_network }}" }
+  tags:
+    - proxy
+    - environment
+
+- name: "Update APT cache"
+  ansible.builtin.apt:
+    update_cache: true

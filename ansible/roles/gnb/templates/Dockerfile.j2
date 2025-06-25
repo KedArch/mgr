@@ -2,4 +2,4 @@ FROM base:latest
 
 COPY --from=builder:latest /srsRAN/build/apps/{{ app }}/srs{{ app }} /usr/bin/srs{{ app }}
 
-CMD /usr/bin/srs{{ app }} -c /etc/{{ app }}.yaml
+CMD /usr/bin/srs{{ app }} -c /etc/srs{{ app }}.yaml

@@ -12,6 +12,25 @@ job "{{ component }}" {
       value     = "{{ affinity }}"
     }
     {% endif %}
+    
+    network {
+      mode = "bridge"
+      {% if ports is defined %}
+      {% for port in ports %}
+      port "${port.number}" {
+        to = ${port.number}
+      }
+      {% endfor %}
+      {% endif %}
+      {% if nodeports is defined %}
+      {% for port in nodeports %}
+      port "nodeport-${port.number}" {
+        static = ${port.number}
+        to = ${port.to}
+      }
+      {% endfor %}
+      {% endif %}
+    }
 
     {% if init exists %}
     task "{{ component }}-init" {
@@ -48,16 +67,19 @@ job "{{ component }}" {
       config {
         image = "{{ host_internal_ip }}:5000/{{ component }}:latest"
         force_pull = true
+        ports = [
+          {% if ports is defined %}
+          {% for port in ports %}
+          "${port.number}",
+          {% endfor %}
+          {% endif %}
+          {% if nodeports is defined %}
+          {% for port in nodeports %}
+          "nodeport-${port.number}",
+          {% endfor %}
+          {% endif %}
+        ]
       }
-
-      # Define ports
-      {% if ports is defined %}
-      {% for port in ports %}
-      port "${port.number}" {
-        static = true
-      }
-      {% endfor %}
-      {% endif %}
 
       volume_mount {
         {% if volumes is defined %}
@@ -80,27 +102,35 @@ job "{{ component }}" {
     }
     {% endfor %}
     {% endif %}
-  }
 
-  # Service definition for ClusterIP equivalent
-  {% if ports is defined %}
-  service {
-    name = "{{ component }}-service"
-    tags = ["service"]
     {% for port in ports %}
-    port = "${port.number}"  # Adjust based on your service port
+    service {
+      name = "{{ component }}-service-${port.number}"
+      tags = ["clusterip", "internal"]
+      port = "${port.number}"
+      check {
+        type     = "{{ port.type | default('tcp') }}"
+        port     = "${port.number}"
+        interval = "10s"
+        timeout  = "2s"
+      }
+    }
     {% endfor %}
-  }
-  {% endif %}
 
-  # Service definition for NodePort equivalent
-  {% if nodeports exists %}
-  service {
-    name = "{{ component }}-node-service"
-    tags = ["nodeport"]
+    {% if nodeports is defined %}
     {% for port in nodeports %}
-    port = "${port.number}"  # Adjust based on your node port
+    service {
+      name = "{{ component }}-node-service-${port.number}"
+      tags = ["nodeport", "external"]
+      port = "nodeport-${port.number}"
+      check {
+        type     = "{{ port.type | default('tcp') }}"
+        port     = "nodeport-${port.number}"
+        interval = "10s"
+        timeout  = "2s"
+      }
+    }
     {% endfor %}
+    {% endif %}
   }
-  {% endif %}
 }

@@ -5,5 +5,4 @@
   roles:
     - role: manifests
       vars:
-        orchestrator: "{{ lookup('ansible.builtin.file', 'state') }}"
-
+        manifests_orchestrator: "{{ lookup('ansible.builtin.file', 'state') }}"

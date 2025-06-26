@@ -12,6 +12,7 @@
         - consul
         - docker
       ignore_errors: true
+      when: k3s_uninstall is not defined or not k3s_uninstall
     - name: "Write state change to file"
       delegate_to: localhost
       become: false
@@ -19,6 +20,7 @@
         content: "k3s"
         dest: "state"
         mode: "644"
+      when: k3s_uninstall is not defined or not k3s_uninstall
   roles:
     - role: vms
       when: skip_vms is not defined or not skip_vms

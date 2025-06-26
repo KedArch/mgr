@@ -6,6 +6,7 @@
     - name: "Disable k3s if running" # noqa: no-changed-when ignore-errors
       ansible.builtin.command: k3s-killall.sh
       ignore_errors: true
+      when: nomad_uninstall is not defined or not nomad_uninstall
     - name: "Write state change to file"
       delegate_to: localhost
       become: false
@@ -13,6 +14,7 @@
         content: "nomad"
         dest: "state"
         mode: "644"
+      when: nomad_uninstall is not defined or not nomad_uninstall
   roles:
     - role: vms
       when: skip_vms is not defined or not skip_vms

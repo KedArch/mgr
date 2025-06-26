@@ -47,8 +47,8 @@
   vars:
     app: "{{ item }}"
   ansible.builtin.template:
-    src: Dockerfile.j2
-    dest: cache/Dockerfile-{{ item }}
+    src: Dockerfile-srs.j2
+    dest: cache/Dockerfile-srs{{ item }}
     mode: "644"
   with_items:
     - cu
@@ -64,5 +64,5 @@
     push: true
     validate_certs: false
   with_items:
-    - cu
-    - du
+    - srscu
+    - srsdu

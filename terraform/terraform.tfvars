@@ -141,13 +141,11 @@ group_vars = {
     "worker_node_group" = "worker"
     "tc_latency" = "{'main': {'reg': '1000', 'edge': '2500'}, 'reg': {'main': '1000', 'edge': '400'}, 'edge': {'main': '2500', 'reg': '400'}}"
     "vm_internal_network_interface": "ens4"
+    "upf" = "other-upf"
+    "core" = "other-core"
+    "ue" = "other-ue"
   }
   "worker" = {
     "k8s_group_labels" = "['node-role.kubernetes.io/worker=']"
-  }
-  "other" = {
-    upf = "other-upf"
-    core = "other-core"
-    ue = "other-ue"
   }
 }

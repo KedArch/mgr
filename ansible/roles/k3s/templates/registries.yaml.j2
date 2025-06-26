@@ -1,8 +1,8 @@
 mirrors:
-  "http://{{ host_internal_ip }}:5000":
+  "{{ host_internal_ip }}:5000":
     endpoint:
       - "http://{{ host_internal_ip }}:5000"
 configs:
-  "http://{{ host_internal_ip }}:5000":
+  "{{ host_internal_ip }}:5000":
     tls:
       insecure_skip_verify: true

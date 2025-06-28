@@ -1,0 +1,25 @@
+---
+- name: "Ensure directories exist"
+  ansible.builtin.file:
+    path: "{{ data_dir }}/volumes/{{ item }}"
+    state: directory
+    mode: "750"
+  with_items:
+    - scripts
+    - configs
+
+- name: "Copy script files"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ data_dir }}/volumes/scripts/{{ item | basename }}"
+    mode: "750"
+  with_fileglob:
+    - "{{ role_path }}/files/{{ region }}/scripts/*"
+
+- name: "Copy config files"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ data_dir }}/volumes/configs/{{ item | basename }}.in"
+    mode: "640"
+  with_fileglob:
+    - "{{ role_path }}/files/{{ region }}/configs/*"

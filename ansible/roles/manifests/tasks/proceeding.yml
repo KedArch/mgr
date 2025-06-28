@@ -1,0 +1,8 @@
+---
+- name: "Worker tasks"
+  ansible.builtin.include_tasks: worker.yml
+  when: inventory_hostname in groups[manifests_worker_node_group]
+
+- name: "Control plane tasks"
+  ansible.builtin.include_tasks: control.yml
+  when: inventory_hostname == manifests_first_cp_node

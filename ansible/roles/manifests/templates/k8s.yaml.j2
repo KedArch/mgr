@@ -15,89 +15,101 @@ spec:
       labels:
         component: "{{ component }}"
     spec:
-      {% if affinity exists %}
+      {% if affinity is defined -%}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
               - key: "node-role.kubernetes.io/{{ affinity }}"
-                operator: exists
+                operator: Exists
       {% endif %}
-      {% if init exists %}
-      initContainers:
-        - name: "{{ component }}-init" 
+
+      containers:
+        - name: "{{ component }}"
           image: "{{ host_internal_ip }}:5000/{{ manifests_repo }}/{{ component }}:latest"
           imagePullPolicy: Always
-          {% if env exists %}
+          
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          
+          {% if cmd is defined -%}
+          command: ["{{ cmd }}"]
+          {% endif %}
+          
+          ports:
+            {% for port in ports -%}
+            - containerPort: {{ port.number }}
+            {% endfor %}
+
+            {% if nodeports is defined -%}
+            {% for port in nodeports -%}
+            - containerPort: {{ port.number }}
+            {% endfor %}
+            {% endif %}
+
+          {% if env is defined -%}
           env:
-            {% for name, value in env %}
+            {% for name, value in env.items() -%}
             - name: "{{ name }}"
               value: "{{ value }}"
             {% endfor %}
           {% endif %}
-          command: ["{{ init }}"]
-          {% if volumes is defined %}
+
+          {% if volumes is defined -%}
           volumeMounts:
-            {% for volume in volumes %}
-            {% if volume.where is not defined or volume.where == "init" %}
-              - mountPath: "{{ volume.dest }}"
-                name: "{{ volume.name }}"
-            {% endif %}
+            {% for volume in volumes -%}
+            - mountPath: "{{ volume.dest }}"
+              name: "{{ volume.name }}"
             {% endfor %}
           {% endif %}
-      {% endif %}
-      containers:
-        - name: "{{ component }}"
-          image: "{{ host_internal_ip }}:5000/{{ component }}:latest"
-          imagePullPolicy: Always
-          {% if volumes is defined %}
-          volumeMounts:
-            {% for volume in volumes %}
-            {% if volume.where is not defined or volume.where == "main" %}
-              - mountPath: "{{ volume.dest }}"
-                name: "{{ volume.name }}"
-            {% endif %}
-            {% endfor %}
-          {% endif %}
-      {% if volumes is defined %}
+
+      {% if volumes is defined -%}
       volumes:
-        {% for volume in volumes %}
+        {% for volume in volumes -%}
         - name: "{{ volume.name }}"
           hostPath:
             path: "{{ volume.host }}"
+            type: File
         {% endfor %}
       {% endif %}
+
+{% for port in ports -%}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ component }}-service"
+  name: "{{ component }}-{{ port.name | lower }}-service"
 spec:
   type: ClusterIP
   selector:
     component: "{{ component }}"
   ports:
-    {% for port in ports %}
-    - protocol: "{{ port.type }}"
-      port: "{{ port.number }}"
-      targetPort: "{{ port.number }}"
-    {% endfor %}
-{% if nodeports exists %}
+    - name: "{{ port.name | lower }}"
+      protocol: "{{ port.type }}"
+      port: {{ port.number }}
+      targetPort: {{ port.number }}
+{% endfor %}
+
+{% if nodeports is defined %}
+{% for port in nodeports -%}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ component }}-node-service"
+  name: "{{ component }}-{{ port.name | lower }}-node-service"
 spec:
   type: NodePort
   selector:
     component: "{{ component }}"
   ports:
-    {% for port in nodeports %}
-    - protocol: "{{ port.type }}"
-      port: "{{ port.number }}"
-      targetPort: "{{ port.number }}"
-      nodePort: "{{ port.number }}"
-    {% endfor %}
+    - name: "{{ port.name | lower }}"
+      protocol: "{{ port.type }}"
+      port: {{ port.number }}
+      targetPort: {{ port.number }}
+      nodePort: {{ port.number }}
+{% endfor %}
 {% endif %}

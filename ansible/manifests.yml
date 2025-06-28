@@ -6,3 +6,6 @@
     - role: manifests
       vars:
         manifests_orchestrator: "{{ lookup('ansible.builtin.file', 'state') }}"
+        manifests_cp_node_group: "{{ cp_node_group }}"
+        manifests_worker_node_group: "{{ worker_node_group }}"
+        manifests_first_cp_node: "{{ first_cp_node }}"

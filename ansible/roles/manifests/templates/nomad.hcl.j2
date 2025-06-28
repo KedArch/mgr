@@ -5,7 +5,7 @@ job "{{ component }}" {
   group "{{ component }}-group" {
     count = 1
 
-    {% if affinity exists %}
+    {% if affinity is defined -%}
     constraint {
       attribute = "region"
       operator  = "equals"
@@ -15,24 +15,24 @@ job "{{ component }}" {
     
     network {
       mode = "bridge"
-      {% if ports is defined %}
-      {% for port in ports %}
-      port "${port.number}" {
-        to = ${port.number}
+      {% if ports is defined -%}
+      {% for port in ports -%}
+      port "{{ port.number }}" {
+        to = "{{ port.number }}"
       }
       {% endfor %}
       {% endif %}
-      {% if nodeports is defined %}
-      {% for port in nodeports %}
-      port "nodeport-${port.number}" {
-        static = ${port.number}
-        to = ${port.to}
+      {% if nodeports is defined -%}
+      {% for port in nodeports -%}
+      port "nodeport-{{ port.number }}" {
+        static = "{{ port.number }}"
+        to = "{{ port.number }}"
       }
       {% endfor %}
       {% endif %}
     }
 
-    {% if init exists %}
+    {% if init is defined -%}
     task "{{ component }}-init" {
       driver = "docker"
       config {
@@ -42,17 +42,17 @@ job "{{ component }}" {
       }
 
       env {
-        {% if env exists %}
-        {% for name, value in env %}
+        {% if env is defined -%}
+        {% for name, value in env.items() -%}
         "{{ name }}" = "{{ value }}"
         {% endfor %}
         {% endif %}
       }
 
       volume_mount {
-        {% if volumes is defined %}
-        {% for volume in volumes %}
-        {% if volume.where is not defined or volume.where == "init" %}
+        {% if volumes is defined -%}
+        {% for volume in volumes -%}
+        {% if volume.where is not defined or volume.where == "init" -%}
         volume      = "{{ volume.name }}"
         destination = "{{ volume.dest }}"
         {% endif %}
@@ -68,23 +68,23 @@ job "{{ component }}" {
         image = "{{ host_internal_ip }}:5000/{{ component }}:latest"
         force_pull = true
         ports = [
-          {% if ports is defined %}
-          {% for port in ports %}
-          "${port.number}",
+          {% if ports is defined -%}
+          {% for port in ports -%}
+          "{{ port.number }}",
           {% endfor %}
           {% endif %}
-          {% if nodeports is defined %}
-          {% for port in nodeports %}
-          "nodeport-${port.number}",
+          {% if nodeports is defined -%}
+          {% for port in nodeports -%}
+          "nodeport-{{ port.number }}",
           {% endfor %}
           {% endif %}
         ]
       }
 
       volume_mount {
-        {% if volumes is defined %}
-        {% for volume in volumes %}
-        {% if volume.where is not defined or volume.where == "main" %}
+        {% if volumes is defined -%}
+        {% for volume in volumes -%}
+        {% if volume.where is not defined or volume.where == "main" -%}
         volume      = "{{ volume.name }}"
         destination = "{{ volume.dest }}"
         {% endif %}
@@ -94,8 +94,8 @@ job "{{ component }}" {
     }
 
     # Define volumes
-    {% if volumes is defined %}
-    {% for volume in volumes %}
+    {% if volumes is defined -%}
+    {% for volume in volumes -%}
     volume "{{ volume.name }}" {
       type = "host"
       source = "{{ volume.host }}"
@@ -103,14 +103,14 @@ job "{{ component }}" {
     {% endfor %}
     {% endif %}
 
-    {% for port in ports %}
+    {% for port in ports -%}
     service {
-      name = "{{ component }}-service-${port.number}"
+      name = "{{ component }}-service-{{ port.number }}"
       tags = ["clusterip", "internal"]
-      port = "${port.number}"
+      port = "{{ port.number }}"
       check {
         type     = "{{ port.type | default('tcp') }}"
-        port     = "${port.number}"
+        port     = "{{ port.number }}"
         interval = "10s"
         timeout  = "2s"
       }
@@ -118,14 +118,14 @@ job "{{ component }}" {
     {% endfor %}
 
     {% if nodeports is defined %}
-    {% for port in nodeports %}
+    {% for port in nodeports -%}
     service {
-      name = "{{ component }}-node-service-${port.number}"
+      name = "{{ component }}-node-service-{{ port.number }}"
       tags = ["nodeport", "external"]
-      port = "nodeport-${port.number}"
+      port = "nodeport-{{ port.number }}"
       check {
         type     = "{{ port.type | default('tcp') }}"
-        port     = "nodeport-${port.number}"
+        port     = "nodeport-{{ port.number }}"
         interval = "10s"
         timeout  = "2s"
       }

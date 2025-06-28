@@ -1,7 +1,7 @@
 cu_cp:
   amf:
     addr: AMF_ADDR
-    bind_addr: 0.0.0.0
+    bind_addr: CORE_BIND_ADDR
     supported_tracking_areas:
       - tac: 1
         plmn_list:
@@ -14,4 +14,4 @@ cu_up:
   f1u:
     socket:
       -
-        bind_addr: 0.0.0.0
+        bind_addr: 127.0.0.1

@@ -16,3 +16,6 @@ retry_join = [{% for name in groups[nomad_cp_node_group] %}
 ui_config {
   enabled = true
 }
+ports {
+  grpc = 8502
+}

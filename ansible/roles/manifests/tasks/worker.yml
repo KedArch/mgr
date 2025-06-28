@@ -19,7 +19,7 @@
 - name: "Copy config files"
   ansible.builtin.copy:
     src: "{{ item }}"
-    dest: "{{ data_dir }}/volumes/configs/{{ item | basename }}.in"
+    dest: "{{ data_dir }}/volumes/configs/{{ item | basename }}"
     mode: "640"
   with_fileglob:
     - "{{ role_path }}/files/{{ region }}/configs/*"

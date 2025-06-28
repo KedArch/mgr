@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "srsdu"
+  labels:
+    component: "srsdu"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: "srsdu"
+  template:
+    metadata:
+      labels:
+        component: "srsdu"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "node-role.kubernetes.io/edge"
+                    operator: Exists
+      containers:
+        - name: "srsdu"
+          image: "{{ host_internal_ip }}:5000/mgr/srsdu:latest"
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          command: ["/script.sh"]
+          ports:
+            - containerPort: 38472
+            - containerPort: 2152
+            - containerPort: 2000
+          env:
+            - name: "CU_CP_ADDR"
+              value: "srscu-f1ap-service"
+            - name: "UE_ADDR"
+              value: "{{ hostvars[ue]['ansible_host'] }}"
+          volumeMounts:
+            - mountPath: "/script.sh"
+              name: "script"
+            - mountPath: "/etc/srsdu.yaml.in"
+              name: "config-in"
+      volumes:
+        - name: "script"
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/srsdu.sh"
+            type: File
+        - name: "config-in"
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/srsdu.yaml.in"
+            type: File

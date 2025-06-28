@@ -1,18 +1,10 @@
 ---
-- name: "Copy template"
+- name: "Copy manifest: {{ item | basename }}"
   ansible.builtin.template:
-    src: "{{ template }}"
-    dest: "{{ data_dir }}/manifests/{{ item.component }}.{{ template.split('.')[-2] }}"
+    src: "{{ item }}"
+    dest: "{{ data_dir }}/manifests/{{ item | basename }}"
     mode: "640"
-  vars:
-    component: "{{ item.component }}"
-    cmd: "{{ item.cmd }}"
-    affinity: "{{ item.affinity }}"
-    env: "{{ item.env }}"
-    ports: "{{ item.ports }}"
-    nodeports: "{{ item.nodeports }}"
-    volumes: "{{ item.volumes }}"
 
-- name: "Apply manifest" # noqa: no-changed-when
+- name: "Apply manifest: {{ item | basename }}" # noqa: no-changed-when
   ansible.builtin.command:
-    cmd: "{{ command }} {{ data_dir }}/manifests/{{ item.component }}.{{ template.split('.')[-2] }}"
+    cmd: "{{ command }} {{ data_dir }}/manifests/{{ item | basename }}"

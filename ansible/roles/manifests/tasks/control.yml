@@ -5,18 +5,9 @@
     state: directory
     mode: "750"
 
-- name: "Execute k3s specific actions"
+- name: "Execute orchestrator actions: {{ manifests_orchestrator }}"
   ansible.builtin.include_tasks: process.yml
   vars:
-    template: "{{ manifests_orchestrator_apply.k3s.template }}"
-    command: "{{ manifests_orchestrator_apply.k3s.command }}"
-  when: manifests_orchestrator == "k3s"
-  with_items: "{{ manifests_list }}"
-
-- name: "Execute nomad specific actions"
-  ansible.builtin.include_tasks: process.yml
-  vars:
-    template: "{{ manifests_orchestrator_apply.nomad.template }}"
-    command: "{{ manifests_orchestrator_apply.nomad.command }}"
-  when: manifests_orchestrator == "nomad"
-  with_items: "{{ manifests_list }}"
+    command: "{{ manifests_orchestrator_command[manifests_orchestrator] }}"
+  with_fileglob:
+    - "{{ role_path }}/templates/{{ manifests_orchestrator }}/*"

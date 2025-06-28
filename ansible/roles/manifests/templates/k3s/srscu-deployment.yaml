@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "srscu"
+  labels:
+    component: "srscu"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: "srscu"
+  template:
+    metadata:
+      labels:
+        component: "srscu"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "node-role.kubernetes.io/reg"
+                    operator: Exists
+      containers:
+        - name: "srscu"
+          image: "{{ host_internal_ip }}:5000/mgr/srscu:latest"
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          command: ["/script.sh"]
+          ports:
+            - containerPort: 38472
+            - containerPort: 2152
+          env:
+            - name: "AMF_ADDR"
+              value: "{{ hostvars[core]['ansible_host'] }}"
+          volumeMounts:
+            - mountPath: "/script.sh"
+              name: "script"
+            - mountPath: "/etc/srscu.yaml.in"
+              name: "config-in"
+        - name: "nginx"
+          image: "docker.io/library/nginx:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 2153
+          volumeMounts:
+            - mountPath: "/etc/nginx.conf"
+              name: "nginx"
+      volumes:
+        - name: "script"
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/srscu.sh"
+            type: File
+        - name: "config-in"
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/srscu.yaml.in"
+            type: File
+        - name: "nginx"
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/nginx.conf"
+            type: File

@@ -1,6 +1,7 @@
 ---
 nomad_binary_url: https://releases.hashicorp.com/nomad/1.10.2/nomad_1.10.2_linux_amd64.zip
 nomad_consul_binary_url: https://releases.hashicorp.com/consul/1.21.1/consul_1.21.1_linux_amd64.zip
+nomad_cni_url: https://github.com/containernetworking/plugins/releases/download/v1.7.1/cni-plugins-linux-amd64-v1.7.1.tgz
 nomad_dep_packages:
   - unzip
   - docker.io

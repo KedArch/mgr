@@ -1,4 +1,4 @@
 ---
 manifests_orchestrator_command:
   k3s: kubectl apply -f
-  nomad: nomad job run
+  nomad: "nomad job run -address=http://{{ hostvars[first_cp_node]['ansible_host'] }}:4646"

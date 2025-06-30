@@ -26,22 +26,26 @@ job "srscu" {
     
     task "srscu" {
       driver = "docker"
+      resources {
+        cpu = 200
+        memory = 4096
+      }
+      env {
+        AMF_ADDR = "{{ hostvars[core]['ansible_host'] }}"
+      }
       config {
-        image = "{{ host_internal_ip }}:5000/srscu:latest"
+        image = "{{ host_internal_ip }}:5000/mgr/srscu:latest"
+        command = "/script.sh"
         force_pull = true
+        cap_add = ["net_raw", "net_admin"]
         ports = [
           "38472",
           "nodeport-2152",
         ]
-      }
-
-      volume_mount {
-        volume      = "script"
-        destination = "/script.sh"
-      }
-      volume_mount {
-        volume      = "config-in"
-        destination = "/etc/srscu.yaml.in"
+        volumes = [
+          "{{ data_dir }}/volumes/scripts/srscu.sh:/script.sh",
+          "{{ data_dir }}/volumes/configs/srscu.yaml.in:/etc/srscu.yaml.in"
+        ]
       }
     }
 
@@ -49,28 +53,14 @@ job "srscu" {
       driver = "docker"
       config {
         image = "docker.io/library/nginx:latest"
+        cap_add = ["net_raw", "net_admin"]
         ports = [
-          "2152",
+          "2152"
+        ]
+        volumes = [
+          "{{ data_dir }}/volumes/configs/nginx.conf:/etc/nginx.conf"
         ]
       }
-
-      volume_mount {
-        volume      = "nginx"
-        destination = "/etc/nginx.conf"
-      }
-    }
-
-    volume "script" {
-      type = "host"
-      source = "{{ data_dir }}/volumes/scripts/srscu.sh"
-    }
-    volume "config-in" {
-      type = "host"
-      source = "{{ data_dir }}/volumes/configs/srscu.yaml.in"
-    }
-    volume "nginx" {
-      type = "host"
-      source = "{{ data_dir }}/volumes/configs/nginx.conf"
     }
         
     service {

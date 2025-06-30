@@ -1,7 +1,7 @@
 datacenter = "cluster"
 data_dir = "{{ nomad_data_path }}"
 name = "{{ inventory_hostname}}"
-bind_addr = "0.0.0.0"
+bind_addr = "{{ hostvars[inventory_hostname]['ansible_host'] }}"
 {% if inventory_hostname in groups[nomad_cp_node_group] %}
 advertise {
   http = "{{ hostvars[inventory_hostname]['ansible_host'] }}"
@@ -24,3 +24,30 @@ client {
   {% endif %}
 }
 {% endif %}
+plugin "docker" {
+  config {
+    endpoint = "unix:///var/run/docker.sock"
+
+    gc {
+      image       = true
+      image_delay = "3m"
+      container   = true
+
+      dangling_containers {
+        enabled        = true
+        dry_run        = false
+        period         = "5m"
+        creation_grace = "5m"
+      }
+    }
+
+    volumes {
+      enabled      = true
+    }
+
+    allow_privileged = false
+    allow_caps       = ["audit_write", "chown", "dac_override", "fowner", "fsetid", "kill", "mknod",
+                        "net_bind_service", "setfcap", "setgid", "setpcap", "setuid", "sys_chroot",
+                        "net_raw", "net_admin"]
+  }
+}

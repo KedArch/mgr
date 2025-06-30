@@ -2,11 +2,11 @@
 freq_offset = 0
 tx_gain = 50
 rx_gain = 40
-srate = 11.52e6
+srate = 23.04e6
 nof_antennas = 1
 
 device_name = zmq
-device_args = tx_port=tcp://{{ hostvars[ue]['ansible_host'] }}:2001,rx_port=tcp://127.0.0.1:2000,base_srate=11.52e6
+device_args = tx_port=tcp://{{ hostvars[ue]['ansible_host'] }}:2001,rx_port=tcp://127.0.0.1:2000,base_srate=23.04e6
 
 [rat.eutra]
 dl_earfcn = 2850

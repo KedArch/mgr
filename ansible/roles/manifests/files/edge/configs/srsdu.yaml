@@ -7,10 +7,10 @@ f1u:
       bind_addr: 0.0.0.0
 ru_sdr:
   device_driver: zmq
-  device_args: tx_port=tcp://*:2000,rx_port=tcp://UE_ADDR:2001,base_srate=11.52e64
+  device_args: tx_port=tcp://*:2000,rx_port=tcp://UE_ADDR:2001,base_srate=23.04e64
   srate: 23.04
-  tx_gain: 80
-  rx_gain: 40
+  tx_gain: 75
+  rx_gain: 75
 cell_cfg:
   dl_arfcn: 650000
   band: 78

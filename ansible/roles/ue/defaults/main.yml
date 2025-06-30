@@ -19,6 +19,8 @@ ue_haproxy_additional_config: |
 
   # Backend configuration
   backend redirect_backend
+      mode tcp
+      balance leastconn
   {% for host in groups[ue_backend_node_group] %}
   {% if hostvars[host].region == ue_gnb_region %}
       server {{ host }} {{ hostvars[host]['ansible_host'] }}:2000 check

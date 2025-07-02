@@ -1,0 +1,63 @@
+---
+- name: "Ensure bin and cache dirs exists"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - bin
+    - cache
+
+- name: "Download cilium-cli"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.get_url:
+    url: "{{ k3s_cilium_cli_url }}"
+    dest: cache/cilium-cli.tar.gz
+    mode: "644"
+
+- name: "Unarchive cilium-cli"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.unarchive:
+    src: cache/cilium-cli.tar.gz
+    dest: bin
+
+- name: "Download hubble-cli"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.get_url:
+    url: "{{ k3s_cilium_hubble_cli_url }}"
+    dest: cache/cilium-hubble-cli.tar.gz
+    mode: "644"
+
+- name: "Unarchive hubble-cli"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.unarchive:
+    src: cache/cilium-hubble-cli.tar.gz
+    dest: bin
+
+- name: "Install cilium" # noqa: no-changed-when
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.command:
+    cmd: "./bin/cilium install --version {{ k3s_cilium_version }} {{ k3s_cilium_install_params }}"
+  environment:
+    KUBECONFIG: creds/kubeconfig
+
+- name: "Enable hubble" # noqa: no-changed-when
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.command:
+    cmd: "./bin/cilium hubble enable"
+  environment:
+    KUBECONFIG: creds/kubeconfig

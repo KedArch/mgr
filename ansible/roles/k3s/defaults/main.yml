@@ -1,6 +1,8 @@
 ---
 k3s_cilium_cli_version: v0.18.4
 k3s_cilium_cli_url: https://github.com/cilium/cilium-cli/releases/download/{{ k3s_cilium_cli_version }}/cilium-linux-amd64.tar.gz
+k3s_cilium_hubble_cli_version: v1.17.5
+k3s_cilium_hubble_cli_url: https://github.com/cilium/hubble/releases/download/{{ k3s_cilium_hubble_cli_version }}/hubble-linux-amd64.tar.gz
 k3s_cilium_version: 1.17.5
 k3s_cilium_install_params: --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" --set sctp.enabled=true
 k3s_default_cp_options:

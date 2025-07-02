@@ -13,3 +13,4 @@ terraform/*.auto.tfvars
 terraform/terraform.tfstate*
 terraform/.terraform.tfstate*
 cache
+bin

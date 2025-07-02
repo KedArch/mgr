@@ -55,5 +55,5 @@ spec:
             type: File
         - name: "config-in"
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/srsdu.yaml.in"
+            path: "{{ data_dir }}/volumes/configs/srsdu.yaml"
             type: File

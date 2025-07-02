@@ -59,7 +59,7 @@ spec:
             type: File
         - name: "config-in"
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/srscu.yaml.in"
+            path: "{{ data_dir }}/volumes/configs/srscu.yaml"
             type: File
         - name: "nginx"
           hostPath:

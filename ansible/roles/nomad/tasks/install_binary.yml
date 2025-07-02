@@ -45,11 +45,11 @@
     remote_src: true
   when: not consul_binary.stat.exists
 
-- name: "Ensure cni dir exists"
+- name: "Ensure CNI dir exists"
   ansible.builtin.file:
     path: /opt/cni/bin
     state: directory
-    mode: '0644'
+    mode: '0755'
   register: cni
 
 - name: "Download CNI" # noqa: no-handler

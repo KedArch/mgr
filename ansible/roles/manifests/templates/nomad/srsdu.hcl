@@ -31,7 +31,7 @@ job "srsdu" {
         memory = 4096
       }
       env {
-        CU_CP_ADDR = "srscu-f1ap-service"
+        CU_CP_ADDR = "srscu-f1ap-service.service.consul"
         UE_ADDR = "{{ hostvars[ue]['ansible_host'] }}"
       }
       config {

@@ -65,3 +65,46 @@
   when: >
     (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
     and (inventory_hostname in groups[k3s_worker_node_group])
+
+- name: "Ensure CNI dir exists"
+  ansible.builtin.file:
+    path: /opt/cni/bin
+    state: directory
+    mode: '0755'
+
+- name: "Ensure bin and cache dirs exists"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - bin
+    - cache
+
+- name: "Download cilium-cli"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.get_url:
+    url: "{{ k3s_cilium_cli_url }}"
+    dest: bin/cilium-cli.tar.gz
+    mode: "644"
+
+- name: "Unarchive cilium-cli"
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.unarchive:
+    src: cache/cilium-cli.tar.gz
+    dest: bin
+
+- name: "Install cilium" # noqa: no-changed-when
+  delegate_to: localhost
+  become: false
+  run_once: true
+  ansible.builtin.command:
+    cmd: "./bin/cilium install --version {{ k3s_cilium_version }} {{ k3s_cilium_install_params }}"
+  environment:
+    KUBECONFIG: creds/kubeconfig

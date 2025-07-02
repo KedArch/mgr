@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-sctp-outbound
+spec:
+  podSelector:
+    matchLabels:
+      app: srscu
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.200.0.101/32
+    ports:
+    - protocol: SCTP
+      port: 38412
+

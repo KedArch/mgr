@@ -1,8 +1,8 @@
 ---
 - name: "Merge control plane options parameters"
   ansible.builtin.set_fact:
-    k3s_cp_options: "{{ k3s_cp_options | default('') }} --{{ item.key }} {{ item.value }}"
-  with_dict: "{{ lookup('community.general.merge_variables', 'k[38]s_.*_cp_options') | default({}) }}"
+    k3s_cp_options: "{{ k3s_cp_options | default('') }} --{{ item }}"
+  with_items: "{{ lookup('community.general.merge_variables', 'k[38]s_.*_cp_options') | default([]) }}"
 
 - name: "Install k3s node" # noqa: no-changed-when
   ansible.builtin.shell:

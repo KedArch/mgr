@@ -12,6 +12,12 @@
     token: "{{ token_file['content'] | b64decode | trim }}"
     server: "https://{{ k3s_cp_endpoint }}:6443"
 
+- name: "Merge control plane options parameters"
+  ansible.builtin.set_fact:
+    k3s_cp_options: "{{ k3s_cp_options | default('') }} --{{ item }}"
+  with_items: "{{ lookup('community.general.merge_variables', 'k[38]s_.*_cp_options') | default([]) }}"
+  when: k3s_cp_node_group in group_names
+
 - name: "Install k3s node" # noqa: no-changed-when
   ansible.builtin.shell:
     cmd: "set -o pipefail && curl -sfL https://get.k3s.io | sh -"
@@ -24,6 +30,7 @@
       --token {{ token }}
       --server {{ server }}
       --node-ip {{ ansible_host }}
+      {{ k3s_cp_options if k3s_cp_node_group in group_names }}
   register: out
   changed_when: out.rc == 0
   failed_when: out.rc != 0

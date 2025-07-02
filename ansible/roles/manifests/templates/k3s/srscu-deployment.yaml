@@ -46,12 +46,11 @@ spec:
             - mountPath: "/etc/srscu.yaml.in"
               name: "config-in"
         - name: "nginx"
-          image: "docker.io/library/nginx:latest"
-          imagePullPolicy: Always
+          image: "docker.io/tekn0ir/nginx-stream:latest"
           ports:
             - containerPort: 2153
           volumeMounts:
-            - mountPath: "/etc/nginx.conf"
+            - mountPath: "/opt/nginx/stream.conf.d/srscu.conf"
               name: "nginx"
       volumes:
         - name: "script"

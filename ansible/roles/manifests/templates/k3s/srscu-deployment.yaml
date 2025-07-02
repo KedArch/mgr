@@ -32,6 +32,8 @@ spec:
                 - NET_ADMIN
                 - NET_RAW
           command: ["/script.sh"]
+          stdin: true
+          tty: true
           ports:
             - containerPort: 38472
             - containerPort: 2152

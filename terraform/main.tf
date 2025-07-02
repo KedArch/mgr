@@ -96,7 +96,7 @@ resource "libvirt_volume" "system" {
   pool = libvirt_pool.system.name
   base_volume_id = libvirt_volume.base_image.id
   format = "qcow2"
-  size = 5 * 1024 * 1024 * 1024
+  size = coalesce(each.value.system_size, 10) * 1024 * 1024 * 1024
 }
 
 resource "libvirt_volume" "data" {
@@ -105,7 +105,7 @@ resource "libvirt_volume" "data" {
   name = "${each.key}-data.qcow2"
   pool = libvirt_pool.data.name
   format = "qcow2"
-  size = each.value.storage_size * 1024 * 1024 * 1024
+  size = each.value.data_size * 1024 * 1024 * 1024
 }
 
 resource "libvirt_domain" "vm" {

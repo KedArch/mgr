@@ -5,7 +5,7 @@ vms = {
       vcpu = 2
       ram = 4096
       ip = "10.200.0.11"
-      storage_size = 10
+      data_size = 10
       vars = {
         region = "main"
         k8s_node_labels = "['node-role.kubernetes.io/main=']"
@@ -15,7 +15,7 @@ vms = {
       vcpu = 2
       ram = 4096
       ip = "10.200.0.12"
-      storage_size = 10
+      data_size = 10
       vars = {
         region = "main"
         k8s_node_labels = "['node-role.kubernetes.io/main=']"
@@ -25,7 +25,7 @@ vms = {
       vcpu = 2
       ram = 4096
       ip = "10.200.0.21"
-      storage_size = 10
+      data_size = 10
       vars = {
         region = "reg"
         k8s_node_labels = "['node-role.kubernetes.io/reg=']"
@@ -37,7 +37,7 @@ vms = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.31"
-      storage_size = 50
+      data_size = 50
       vars = {
         region = "main"
         k8s_node_labels = "['node-role.kubernetes.io/main=']"
@@ -48,7 +48,7 @@ vms = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.32"
-      storage_size = 50
+      data_size = 50
       vars = {
         region = "main"
         k8s_node_labels = "['node-role.kubernetes.io/main=']"
@@ -59,7 +59,7 @@ vms = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.51"
-      storage_size = 50
+      data_size = 50
       vars = {
         region = "reg"
         k8s_node_labels = "['node-role.kubernetes.io/reg=']"
@@ -70,7 +70,7 @@ vms = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.52"
-      storage_size = 50
+      data_size = 50
       vars = {
         region = "reg"
         k8s_node_labels = "['node-role.kubernetes.io/reg=']"
@@ -81,7 +81,7 @@ vms = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.71"
-      storage_size = 50
+      data_size = 50
       vars = {
         region = "edge"
         k8s_node_labels = "['node-role.kubernetes.io/edge=']"
@@ -92,7 +92,7 @@ vms = {
       vcpu = 4
       ram = 8192
       ip = "10.200.0.72"
-      storage_size = 50
+      data_size = 50
       vars = {
         region = "edge"
         k8s_node_labels = "['node-role.kubernetes.io/edge=']"
@@ -105,13 +105,13 @@ vms = {
       vcpu = 2
       ram = 2048
       ip = "10.200.0.111"
-      storage_size = 10
+      data_size = 10
     }
     "core" = {
       vcpu = 4
       ram = 4096
       ip = "10.200.0.101"
-      storage_size = 10
+      data_size = 10
       vars = {
         region = "reg"
         open5gs = true
@@ -121,7 +121,7 @@ vms = {
       vcpu = 2
       ram = 2048
       ip = "10.200.0.102"
-      storage_size = 10
+      data_size = 10
       vars = {
         region = "edge"
         open5gs = true

@@ -35,7 +35,8 @@ variable "vms" {
     vcpu = number
     ram = number
     ip = string
-    storage_size = number # it is multiplied by 1024^3
+    system_size = optional(number) # it is multiplied by 1024^3
+    data_size = number # it is multiplied by 1024^3
     vars = optional(map(string)) # ansible host_vars
   })))
 }

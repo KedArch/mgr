@@ -5,6 +5,7 @@ f1u:
   socket:
     -
       bind_addr: 0.0.0.0
+      ext_addr: F1U_EXT_ADDR
 ru_sdr:
   device_driver: zmq
   device_args: tx_port=tcp://0.0.0.0:2000,rx_port=tcp://UE_ADDR:2001,base_srate=11.52e64

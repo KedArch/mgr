@@ -45,16 +45,11 @@ spec:
               name: "script"
             - mountPath: "/etc/srscu.yaml.in"
               name: "config-in"
-        - name: cu-udp-proxy
+        - name: udp-proxy
           image: alpine/socat
           command: ["socat", "-u", "UDP-LISTEN:2153,fork", "UDP:localhost:2152"]
           ports:
           - containerPort: 2153
-        - name: du-udp-proxy
-          image: alpine/socat
-          command: ["socat", "-u", "UDP-LISTEN:2154,fork", "UDP:srscu-f1u-srsdu-fake-service:2152"]
-          ports:
-          - containerPort: 2154
       volumes:
         - name: "script"
           hostPath:

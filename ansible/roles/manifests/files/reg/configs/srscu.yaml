@@ -10,8 +10,12 @@ cu_cp:
               - sst: 1
   f1ap:
     bind_addr: 0.0.0.0
+  inactivity_timer: 7200
 cu_up:
   f1u:
     socket:
       -
         bind_addr: 127.0.0.1
+        ext_addr: F1U_EXT_ADDR
+log:
+  all_level: debug

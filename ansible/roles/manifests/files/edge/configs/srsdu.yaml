@@ -7,7 +7,7 @@ f1u:
       bind_addr: 0.0.0.0
 ru_sdr:
   device_driver: zmq
-  device_args: tx_port=tcp://*:2000,rx_port=tcp://UE_ADDR:2001,base_srate=11.52e64
+  device_args: tx_port=tcp://0.0.0.0:2000,rx_port=tcp://UE_ADDR:2001,base_srate=11.52e64
   srate: 11.52
   tx_gain: 75
   rx_gain: 75
@@ -31,3 +31,5 @@ cell_cfg:
     mcs_table: qam64                # Sets PDSCH MCS to 64 QAM
   pusch:
     mcs_table: qam64                # Sets PUSCH MCS to 64 QAM
+log:
+  all_level: debug

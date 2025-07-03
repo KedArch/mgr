@@ -5,7 +5,8 @@ COPY --from=builder:latest /srsRAN/build/apps/{{ app }}/srs{{ app }} /usr/bin/sr
 {% if app == 'cu' %}
 RUN apt update \
     && apt install -y \
-        iproute2\
+        iproute2 \
+        iptables \
     && apt-get clean
 {% endif %}
 

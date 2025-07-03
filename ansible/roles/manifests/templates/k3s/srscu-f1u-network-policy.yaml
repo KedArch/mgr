@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: srscu-f1ap-network-policy
+  name: srscu-f1u-network-policy
 spec:
   podSelector:
     matchLabels:
@@ -13,6 +13,5 @@ spec:
             matchLabels:
               app: srsdu
       ports:
-        - protocol: SCTP
-          port: 38472
-
+        - protocol: UDP
+          port: 2153

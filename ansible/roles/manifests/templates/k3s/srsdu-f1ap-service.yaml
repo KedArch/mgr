@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    component: "srsdu"
+    app: "srsdu"
   ports:
     - name: "f1ap"
       protocol: "SCTP"

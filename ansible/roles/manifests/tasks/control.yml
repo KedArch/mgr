@@ -1,5 +1,10 @@
 ---
-- name: "Ensure manifests dir exist"
+- name: "Clear manifests dir"
+  ansible.builtin.file:
+    path: "{{ data_dir }}/manifests"
+    state: absent
+
+- name: "Create manifests dir"
   ansible.builtin.file:
     path: "{{ data_dir }}/manifests"
     state: directory

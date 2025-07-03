@@ -4,16 +4,16 @@ kind: Deployment
 metadata:
   name: "srscu"
   labels:
-    component: "srscu"
+    app: "srscu"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: "srscu"
+      app: "srscu"
   template:
     metadata:
       labels:
-        component: "srscu"
+        app: "srscu"
     spec:
       affinity:
         nodeAffinity:

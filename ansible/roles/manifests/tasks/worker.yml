@@ -1,5 +1,13 @@
 ---
-- name: "Ensure directories exist"
+- name: "Clear directories"
+  ansible.builtin.file:
+    path: "{{ data_dir }}/volumes/{{ item }}"
+    state: absent
+  with_items:
+    - scripts
+    - configs
+
+- name: "Create directories"
   ansible.builtin.file:
     path: "{{ data_dir }}/volumes/{{ item }}"
     state: directory

@@ -112,6 +112,7 @@ vms = {
       ram = 4096
       ip = "10.200.0.101"
       data_size = 10
+      system_size = 15
       vars = {
         region = "reg"
         open5gs = true
@@ -139,7 +140,7 @@ group_vars = {
     "first_cp_node" = "control-main-1"
     "cp_node_group" = "control"
     "worker_node_group" = "worker"
-    "tc_latency" = "{'main': {'reg': '1000', 'edge': '2500'}, 'reg': {'main': '1000', 'edge': '400'}, 'edge': {'main': '2500', 'reg': '400'}}"
+    "tc_latency" = "{'main': {'reg': '100', 'edge': '500'}, 'reg': {'main': '100', 'edge': '10'}, 'edge': {'main': '500', 'reg': '10'}}"
     "vm_internal_network_interface": "ens4"
     "upf" = "other-upf"
     "core" = "other-core"

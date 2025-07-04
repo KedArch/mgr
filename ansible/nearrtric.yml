@@ -1,0 +1,5 @@
+---
+- name: "Build and push Near-RT RIC images"
+  hosts: localhost
+  roles:
+    - nearrtric

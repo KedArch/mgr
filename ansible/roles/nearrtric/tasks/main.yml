@@ -1,0 +1,47 @@
+---
+- name: "Ensure cache dir exists"
+  ansible.builtin.file:
+    path: "cache"
+    state: directory
+    mode: "755"
+
+- name: "Clone git repository"
+  ansible.builtin.git:
+    repo: "{{ nearrtric_git_url }}"
+    dest: "cache/{{ nearrtric_git_dir }}"
+    version: "{{ nearrtric_git_commit }}"
+
+- name: "Build and push required images"
+  containers.podman.podman_image:
+    name: "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.name }}"
+    path: "cache/{{ nearrtric_git_dir }}/{{ item.context }}"
+    push: true
+    validate_certs: false
+    build:
+      file: "cache/{{ nearrtric_git_dir }}/{{ item.context }}/{{ item.dockerfile }}"
+      extra_args: >
+        {% if item.args is defined %}
+        {% for arg in item.args %}
+        --build-arg {{ arg }}
+        {% endfor %}
+        {% endif %}
+  with_items: "{{ nearrtric_build }}"
+
+- name: "Pull images"
+  containers.podman.podman_image:
+    name: "{{ item.repo }}/{{ item.image }}:{{ item.tag }}"
+  with_items: "{{ nearrtric_premade_images }}"
+
+- name: "Retag images"
+  containers.podman.podman_tag:
+    image: "{{ item.repo }}/{{ item.image }}:{{ item.tag }}"
+    target_names:
+      - "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.image }}:{{ item.tag }}"
+  with_items: "{{ nearrtric_premade_images }}"
+
+- name: "Push images"
+  containers.podman.podman_image:
+    name: "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.image }}:{{ item.tag }}"
+    push: true
+    validate_certs: false
+  with_items: "{{ nearrtric_premade_images }}"

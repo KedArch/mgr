@@ -1,0 +1,30 @@
+---
+nearrtric_git_url: https://github.com/srsran/oran-sc-ric
+nearrtric_git_dir: oran-sc-ric
+nearrtric_git_commit: e44a7ce239b3c908e842163f1d57cbb4ba43fd0a
+nearrtric_oransc_release: i-release
+nearrtric_premade_images:
+  - repo: nexus3.o-ran-sc.org:10002
+    image: o-ran-sc/ric-plt-dbaas
+    tag: 0.6.4
+  - repo: nexus3.o-ran-sc.org:10002
+    image: o-ran-sc/ric-plt-submgr
+    tag: 0.10.1
+  - repo: nexus3.o-ran-sc.org:10002
+    image: o-ran-sc/ric-plt-e2
+    tag: 6.0.4
+  - repo: nexus3.o-ran-sc.org:10002
+    image: o-ran-sc/ric-plt-appmgr
+    tag: 0.5.7
+  - repo: nexus3.o-ran-sc.org:10002
+    image: o-ran-sc/ric-plt-e2mgr
+    tag: 6.0.4
+nearrtric_build:
+  - name: "srsran/ic_rtmgr_sim:{{ nearrtric_oransc_release }}"
+    context: ric/images/rtmgr_sim
+    dockerfile: Dockerfile
+    args:
+      - SC_RIC_VERSION="{{ nearrtric_oransc_release }}"
+  - name: "srsran/python_xapp_runner:{{ nearrtric_oransc_release }}"
+    context: ./ric/images/ric-plt-xapp-frame-py
+    dockerfile: ./Dockerfile

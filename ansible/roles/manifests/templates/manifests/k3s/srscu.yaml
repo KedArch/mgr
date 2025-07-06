@@ -1,0 +1,153 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srscu
+  labels:
+    app: srscu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: srscu
+  template:
+    metadata:
+      labels:
+        app: srscu
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: "srscu"
+          image: "{{ host_internal_ip }}:5000/mgr/srscu:latest"
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          command:
+            - /script.sh
+          stdin: true
+          tty: true
+          ports:
+            - containerPort: 38472
+            - containerPort: 2152
+          env:
+            - name: AMF_ADDR
+              value: "{{ hostvars[core]['ansible_host'] }}"
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /etc/srscu.yaml.in
+              name: config-in
+        - name: udp-proxy
+          image: alpine/socat
+          command: 
+           - socat
+           - -u
+           - UDP-LISTEN:2153,fork
+           - UDP:localhost:2152
+          ports:
+          - containerPort: 2153
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/srscu.sh"
+            type: File
+        - name: config-in
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/srscu.yaml"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srscu-core-node
+spec:
+  type: NodePort
+  selector:
+    component: srscu
+  ports:
+    - protocol: UDP
+      port: 2152
+      targetPort: 2152
+      nodePort: 2152
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: srscu-core-node
+spec:
+  podSelector:
+    matchLabels:
+      app: srscu
+  ingress:
+    - ports:
+        - protocol: UDP
+          port: 2152
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srscu-f1ap
+spec:
+  type: ClusterIP
+  selector:
+    app: srscu
+  ports:
+    - protocol: SCTP
+      port: 38472
+      targetPort: 38472
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: srscu-f1ap
+spec:
+  podSelector:
+    matchLabels:
+      app: srscu
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: srsdu
+      ports:
+        - protocol: SCTP
+          port: 38472
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: srscu-f1u
+spec:
+  type: ClusterIP
+  selector:
+    app: srscu
+  ports:
+    - protocol: UDP
+      port: 2152
+      targetPort: 2153
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: srscu-f1u
+spec:
+  podSelector:
+    matchLabels:
+      app: srscu
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: srsdu
+      ports:
+        - protocol: UDP
+          port: 2153

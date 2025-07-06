@@ -1,0 +1,104 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+  labels:
+    name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: e2term
+  namespace: nearrtric
+  labels:
+    app: e2term
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: e2term
+  template:
+    metadata:
+      labels:
+        app: e2term
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: e2term
+          image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-e2"
+          imagePullPolicy: Always
+          command: 
+            - /script.sh
+          env:
+            - name: CONTAINER_NAME
+              value: ric_e2term
+            - name: HOST_NAME
+              value: ric_e2term_host
+            - name: POD_NAME
+              value: e2term_pod
+            - name: SERVICE_NAME
+              value: ric_e2term_service
+            - name: print
+              value: "1"
+            - name: RMR_SEED_RT
+              value: /opt/e2/dockerRouter.txt
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /opt/e2/config/config.conf.in
+              name: configuration
+            - mountPath: /opt/e2/dockerRouter.txt.in
+              name: uta-rtg
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/e2term.sh"
+            type: File
+        - name: configuration
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/e2term.conf"
+            type: File
+        - name: uta-rtg
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/routes.rtg"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: e2term
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: e2term
+  ports:
+    - protocol: SCTP
+      port: 36421
+      targetPort: 36421
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: e2term
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: e2term
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: nearrtric
+      ports:
+        - protocol: SCTP
+          port: 36421

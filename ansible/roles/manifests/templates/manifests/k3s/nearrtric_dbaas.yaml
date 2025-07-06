@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbaas
+  namespace: nearrtric
+  labels:
+    app: dbaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbaas
+  template:
+    metadata:
+      labels:
+        app: dbaas
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: dbaas
+          image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-dbaas"
+          imagePullPolicy: Always
+          command: 
+            - redis-server
+            - --loadmodule
+            - /usr/local/libexec/redismodule/libredismodule.so
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbaas
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: dbaas
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dbaas
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: dbaas
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: nearrtric
+      ports:
+        - protocol: TCP
+          port: 6379

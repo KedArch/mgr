@@ -1,4 +1,0 @@
----
-manifests_orchestrator_command:
-  k3s: kubectl apply -f
-  nomad: "nomad job run"

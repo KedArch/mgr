@@ -36,12 +36,12 @@
   containers.podman.podman_tag:
     image: "{{ item.repo }}/{{ item.image }}:{{ item.tag }}"
     target_names:
-      - "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.image }}:{{ item.tag }}"
+      - "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.image }}:latest"
   with_items: "{{ nearrtric_premade_images }}"
 
 - name: "Push images"
   containers.podman.podman_image:
-    name: "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.image }}:{{ item.tag }}"
+    name: "{{ hostvars['host']['ansible_host'] }}:5000/{{ item.image }}:latest"
     push: true
     validate_certs: false
   with_items: "{{ nearrtric_premade_images }}"

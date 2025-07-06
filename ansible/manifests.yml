@@ -1,6 +1,6 @@
 ---
 - name: "Configure manifests"
-  hosts: "{{ ansible_limit | default('vms') }}"
+  hosts: "{{ ansible_limit | default(['control', 'worker']) }}"
   become: true
   roles:
     - role: manifests

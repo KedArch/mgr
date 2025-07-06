@@ -1,6 +1,6 @@
 ---
 - name: "Configure Nomad"
-  hosts: "{{ ansible_limit | default('vms') }}"
+  hosts: "{{ ansible_limit | default(['control', 'worker']) }}"
   become: true
   pre_tasks:
     - name: "Disable k3s if running" # noqa: no-changed-when ignore-errors

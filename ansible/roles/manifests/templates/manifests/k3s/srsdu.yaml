@@ -48,13 +48,13 @@ spec:
             - mountPath: /script.sh
               name: script
             - mountPath: /etc/srsdu.yaml.in
-              name: config-in
+              name: config
       volumes:
         - name: script
           hostPath:
             path: "{{ data_dir }}/volumes/scripts/srsdu.sh"
             type: File
-        - name: config-in
+        - name: config
           hostPath:
             path: "{{ data_dir }}/volumes/configs/srsdu.yaml"
             type: File

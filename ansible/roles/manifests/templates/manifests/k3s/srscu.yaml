@@ -45,7 +45,7 @@ spec:
             - mountPath: /script.sh
               name: script
             - mountPath: /etc/srscu.yaml.in
-              name: config-in
+              name: config
         - name: udp-proxy
           image: alpine/socat
           command: 
@@ -60,7 +60,7 @@ spec:
           hostPath:
             path: "{{ data_dir }}/volumes/scripts/srscu.sh"
             type: File
-        - name: config-in
+        - name: config
           hostPath:
             path: "{{ data_dir }}/volumes/configs/srscu.yaml"
             type: File

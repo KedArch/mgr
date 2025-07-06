@@ -64,7 +64,7 @@ spec:
     - from:
       - namespaceSelector:
           matchLabels:
-            name: nearrtric
+            kubernetes.io/metadata.name: nearrtric
       ports:
         - protocol: TCP
           port: 6379

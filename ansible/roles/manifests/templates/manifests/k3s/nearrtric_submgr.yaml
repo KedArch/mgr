@@ -46,9 +46,9 @@ spec:
             - name: SERVICE_NAME
               value: ric_submgr_service
             - name: CFGFILE
-              value: /cfg/submgr-config.yaml
+              value: /opt/config/submgr-config.yaml
             - name: RMR_SEED_RT
-              value: /opt/config/uta-rtg.rt
+              value: /opt/config/submgr-uta-rtg.rt
             #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
           volumeMounts:
             - mountPath: /script.sh

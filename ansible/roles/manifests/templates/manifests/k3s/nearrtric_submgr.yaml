@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+  labels:
+    name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: submgr
+  namespace: nearrtric
+  labels:
+    app: submgr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: submgr
+  template:
+    metadata:
+      labels:
+        app: submgr
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: submgr
+          image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-submgr"
+          imagePullPolicy: Always
+          command: 
+            - /script.sh
+          env:
+            - name: CONTAINER_NAME
+              value: ric_submgr
+            - name: HOST_NAME
+              value: ric_submgr_host
+            - name: POD_NAME
+              value: submgr_pod
+            - name: SERVICE_NAME
+              value: ric_submgr_service
+            - name: CFGFILE
+              value: /cfg/submgr-config.yaml
+            - name: RMR_SEED_RT
+              value: /opt/config/uta-rtg.rt
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /opt/config/submgr-config.yaml.in
+              name: configuration
+            - mountPath: /opt/config/submgr-uta-rtg.rt.in
+              name: uta-rtg
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/submgr.sh"
+            type: File
+        - name: configuration
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/submgr.yaml"
+            type: File
+        - name: uta-rtg
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/routes.rtg"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: submgr
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: submgr
+  ports:
+    - name: rmr
+      protocol: TCP
+      port: 4560
+      targetPort: 4560
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    - name: xapp
+      protocol: TCP
+      port: 8088
+      targetPort: 8088
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: submgr
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: submgr
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: nearrtric
+      ports:
+        - protocol: TCP
+          port: 4560
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8088

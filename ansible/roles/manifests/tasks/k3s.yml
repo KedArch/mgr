@@ -1,4 +1,12 @@
 ---
-- name: "Apply manifest: {{ item | basename }}" # noqa: no-changed-when
+- name: "Copy manifest: {{ item | basename }}"
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"
+    mode: "640"
+  register: manifest
+
+- name: "Apply manifest: {{ item | basename }}" # noqa: no-changed-when no-handler
   ansible.builtin.command:
     cmd: "kubectl apply -f {{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"
+  when: manifest.changed

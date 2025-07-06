@@ -11,19 +11,7 @@
     state: directory
     mode: "755"
 
-- name: "Inform about orchestrator"
-  ansible.builtin.debug:
-    msg: "Processing orchestrator: {{ manifests_orchestrator }}"
-
-- name: "Copy manifests"
-  ansible.builtin.template:
-    src: "{{ item }}"
-    dest: "{{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"
-    mode: "640"
-  with_fileglob:
-    - "{{ role_path }}/templates/manifests/{{ manifests_orchestrator }}/*"
-
-- name: "Execute orchestrator actions"
+- name: "Execute orchestrator actions: {{ manifests_orchestrator }}"
   ansible.builtin.include_tasks: "{{ manifests_orchestrator }}.yml"
   with_fileglob:
     - "{{ role_path }}/templates/manifests/{{ manifests_orchestrator }}/*"

@@ -1,8 +1,14 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gnb
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: srscu
+  namespace: gnb
   labels:
     app: srscu
 spec:
@@ -69,6 +75,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: srscu-core-node
+  namespace: gnb
 spec:
   type: NodePort
   selector:
@@ -83,6 +90,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: srscu-core-node
+  namespace: gnb
 spec:
   podSelector:
     matchLabels:
@@ -96,6 +104,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: srscu-f1ap
+  namespace: gnb
 spec:
   type: ClusterIP
   selector:
@@ -109,6 +118,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: srscu-f1ap
+  namespace: gnb
 spec:
   podSelector:
     matchLabels:
@@ -126,6 +136,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: srscu-f1u
+  namespace: gnb
 spec:
   type: ClusterIP
   selector:
@@ -139,6 +150,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: srscu-f1u
+  namespace: gnb
 spec:
   podSelector:
     matchLabels:

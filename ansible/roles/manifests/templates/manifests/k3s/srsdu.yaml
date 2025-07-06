@@ -1,8 +1,14 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gnb
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: srsdu
+  namespace: gnb
   labels:
     app: srsdu
 spec:
@@ -63,6 +69,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: srsdu-f1ap
+  namespace: gnb
 spec:
   type: ClusterIP
   selector:
@@ -76,6 +83,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: srsdu-f1u
+  namespace: gnb
 spec:
   type: ClusterIP
   selector:
@@ -89,6 +97,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: srsdu-f1u
+  namespace: gnb
 spec:
   podSelector:
     matchLabels:
@@ -106,6 +115,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: srsdu-zmq
+  namespace: gnb
 spec:
   type: NodePort
   selector:
@@ -120,6 +130,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: srsdu-zmq
+  namespace: gnb
 spec:
   podSelector:
     matchLabels:

@@ -6,6 +6,7 @@
   with_items:
     - scripts
     - configs
+  when: manifests_clear is defined and manifests_clear
 
 - name: "Create directories"
   ansible.builtin.file:

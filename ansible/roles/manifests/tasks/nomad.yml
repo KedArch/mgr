@@ -1,0 +1,4 @@
+---
+- name: "Apply manifest: {{ item | basename }}" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: "nomad job run {{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"

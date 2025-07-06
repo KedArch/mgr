@@ -5,4 +5,5 @@
 
 - name: "Control plane tasks"
   ansible.builtin.include_tasks: control.yml
-  when: inventory_hostname == manifests_first_cp_node
+  run_once: true
+  when: inventory_hostname in groups[manifests_cp_node_group]

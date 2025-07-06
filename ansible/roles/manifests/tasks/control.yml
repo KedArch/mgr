@@ -1,18 +1,29 @@
 ---
 - name: "Clear manifests dir"
   ansible.builtin.file:
-    path: "{{ data_dir }}/manifests"
+    path: "{{ data_dir }}/manifests/{{ manifests_orchestrator }}"
     state: absent
+  when: manifests_clear is defined and manifests_clear
 
 - name: "Create manifests dir"
   ansible.builtin.file:
-    path: "{{ data_dir }}/manifests"
+    path: "{{ data_dir }}/manifests/{{ manifests_orchestrator }}"
     state: directory
     mode: "755"
 
-- name: "Execute orchestrator actions: {{ manifests_orchestrator }}"
-  ansible.builtin.include_tasks: process.yml
-  vars:
-    command: "{{ manifests_orchestrator_command[manifests_orchestrator] }}"
+- name: "Inform about orchestrator"
+  ansible.builtin.debug:
+    msg: "Processing orchestrator: {{ manifests_orchestrator }}"
+
+- name: "Copy manifests"
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"
+    mode: "640"
+  with_fileglob:
+    - "{{ role_path }}/templates/manifests/{{ manifests_orchestrator }}/*"
+
+- name: "Execute orchestrator actions"
+  ansible.builtin.include_tasks: "{{ manifests_orchestrator }}.yml"
   with_fileglob:
     - "{{ role_path }}/templates/manifests/{{ manifests_orchestrator }}/*"

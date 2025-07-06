@@ -15,4 +15,4 @@
   vars:
     command: "{{ manifests_orchestrator_command[manifests_orchestrator] }}"
   with_fileglob:
-    - "{{ role_path }}/templates/{{ manifests_orchestrator }}/*"
+    - "{{ role_path }}/templates/manifests/{{ manifests_orchestrator }}/*"

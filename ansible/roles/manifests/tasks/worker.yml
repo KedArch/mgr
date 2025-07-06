@@ -17,17 +17,17 @@
     - configs
 
 - name: "Copy script files"
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "{{ data_dir }}/volumes/scripts/{{ item | basename }}"
     mode: "750"
   with_fileglob:
-    - "{{ role_path }}/files/{{ region }}/scripts/*"
+    - "{{ role_path }}/templates/regions/{{ region }}/scripts/*"
 
 - name: "Copy config files"
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "{{ data_dir }}/volumes/configs/{{ item | basename }}"
     mode: "640"
   with_fileglob:
-    - "{{ role_path }}/files/{{ region }}/configs/*"
+    - "{{ role_path }}/templates/regions/{{ region }}/configs/*"

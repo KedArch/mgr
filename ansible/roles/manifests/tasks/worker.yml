@@ -11,7 +11,7 @@
   ansible.builtin.file:
     path: "{{ data_dir }}/volumes/{{ item }}"
     state: directory
-    mode: "750"
+    mode: "755"
   with_items:
     - scripts
     - configs
@@ -20,7 +20,7 @@
   ansible.builtin.template:
     src: "{{ item }}"
     dest: "{{ data_dir }}/volumes/scripts/{{ item | basename }}"
-    mode: "750"
+    mode: "755"
   with_fileglob:
     - "{{ role_path }}/templates/regions/{{ region }}/scripts/*"
 
@@ -28,6 +28,6 @@
   ansible.builtin.template:
     src: "{{ item }}"
     dest: "{{ data_dir }}/volumes/configs/{{ item | basename }}"
-    mode: "640"
+    mode: "644"
   with_fileglob:
     - "{{ role_path }}/templates/regions/{{ region }}/configs/*"

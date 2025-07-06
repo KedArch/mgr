@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ data_dir }}/manifests"
     state: directory
-    mode: "750"
+    mode: "755"
 
 - name: "Execute orchestrator actions: {{ manifests_orchestrator }}"
   ansible.builtin.include_tasks: process.yml

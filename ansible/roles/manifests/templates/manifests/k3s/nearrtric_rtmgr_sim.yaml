@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rtmgr-sim
+  namespace: nearrtric
+  labels:
+    app: rtmgr-sim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rtmgr-sim
+  template:
+    metadata:
+      labels:
+        app: rtmgr-sim
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: rtmgr-sim
+          image: "{{ host_internal_ip }}:5000/srsran/ric_rtmgr_sim"
+          imagePullPolicy: Always
+          command: 
+            - /script.sh
+          env:
+            - name: CONTAINER_NAME
+              value: ric_rtmgr
+            - name: HOST_NAME
+              value: ric_rtmgr_host
+            - name: POD_NAME
+              value: rtmgr_pod
+            - name: SERVICE_NAME
+              value: ric_rtmgr_service
+            - name: CFGFILE
+              value: /cfg/rtmgr-config.yaml
+            - name: RMR_SEED_RT
+              value: /opt/config/uta-rtg.rt
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /opt/rmsimulator/resources/configuration.yaml
+              name: configuration
+            - mountPath: /opt/config/uta-rtg.rt.in
+              name: uta-rtg
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/rtmgr_sim.sh"
+            type: File
+        - name: configuration
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/rtmgr.yaml"
+            type: File
+        - name: uta-rtg
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/routes.rtg"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rtmgr-sim
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: rtmgr-sim
+  ports:
+    - protocol: TCP
+      port: 12020
+      targetPort: 12020
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rtmgr-sim
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: rtmgr-sim
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: nearrtric
+      ports:
+        - protocol: TCP
+          port: 12020

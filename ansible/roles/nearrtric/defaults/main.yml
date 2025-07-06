@@ -20,7 +20,7 @@ nearrtric_premade_images:
     image: o-ran-sc/ric-plt-e2mgr
     tag: 6.0.4
 nearrtric_build:
-  - name: "srsran/ic_rtmgr_sim:{{ nearrtric_oransc_release }}"
+  - name: "srsran/ric_rtmgr_sim:{{ nearrtric_oransc_release }}"
     context: ric/images/rtmgr_sim
     dockerfile: Dockerfile
     args:

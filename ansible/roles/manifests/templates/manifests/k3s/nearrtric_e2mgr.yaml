@@ -1,0 +1,109 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+  labels:
+    name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: e2mgr
+  namespace: nearrtric
+  labels:
+    app: e2mgr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: e2mgr
+  template:
+    metadata:
+      labels:
+        app: e2mgr
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: e2mgr
+          image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-e2mgr"
+          imagePullPolicy: Always
+          command: 
+            - /script.sh
+          env:
+            - name: CONTAINER_NAME
+              value: ric_e2mgr
+            - name: HOST_NAME
+              value: ric_e2mgr_host
+            - name: POD_NAME
+              value: e2mgr_pod
+            - name: SERVICE_NAME
+              value: ric_e2mgr_service
+            - name: RMR_SEED_RT
+              value: /opt/E2Manager/router.txt
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /opt/E2Manager/resources/configuration.yaml.in
+              name: configuration
+            - mountPath: /opt/E2Manager/router.txt.in
+              name: uta-rtg
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/e2mgr.sh"
+            type: File
+        - name: configuration
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/e2mgr.yaml"
+            type: File
+        - name: uta-rtg
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/routes.rtg"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: e2mgr
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: e2mgr
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3800
+      targetPort: 3800
+    - name: rmr
+      protocol: TCP
+      port: 3801
+      targetPort: 3801
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: e2mgr
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: e2mgr
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: nearrtric
+      ports:
+        - protocol: TCP
+          port: 3800
+        - protocol: TCP
+          port: 3801

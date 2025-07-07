@@ -40,4 +40,5 @@ e2:
   e2sm_rc_enabled: true                    # Enable RC service module
   addr: e2term.nearrtric.svc.cluster.local # RIC IP address
   port: 36421                              # RIC port
+  bind_addr: 0.0.0.0
 

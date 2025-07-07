@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+  labels:
+    name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appmgr
+  namespace: nearrtric
+  labels:
+    app: appmgr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appmgr
+  template:
+    metadata:
+      labels:
+        app: appmgr
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: appmgr
+          image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-appmgr"
+          imagePullPolicy: Always
+          command: 
+            - /script.sh
+          env:
+            - name: CONTAINER_NAME
+              value: ric_appmgr
+            - name: HOST_NAME
+              value: ric_appmgr_host
+            - name: POD_NAME
+              value: appmgr_pod
+            - name: SERVICE_NAME
+              value: ric_appmgr_service
+            - name: RMR_SEED_RT
+              value: /opt/ric/config/router.txt
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /opt/ric/config/appmgr.yaml.in
+              name: configuration
+            - mountPath: /opt/ric/config/router.txt.in
+              name: uta-rtg
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/appmgr.sh"
+            type: File
+        - name: configuration
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/appmgr.yaml"
+            type: File
+        - name: uta-rtg
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/routes.rtg"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appmgr
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: appmgr
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: appmgr
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: appmgr
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: nearrtric
+      ports:
+        - protocol: TCP
+          port: 8080

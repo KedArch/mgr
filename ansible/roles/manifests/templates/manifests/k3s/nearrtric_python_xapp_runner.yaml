@@ -1,0 +1,116 @@
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nearrtric
+  labels:
+    name: nearrtric
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-xapp-runner
+  namespace: nearrtric
+  labels:
+    app: python-xapp-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-xapp-runner
+  template:
+    metadata:
+      labels:
+        app: python-xapp-runner
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/reg
+                    operator: Exists
+      containers:
+        - name: python-xapp-runner
+          image: "{{ host_internal_ip }}:5000/srsran/python_xapp_runner"
+          imagePullPolicy: Always
+          command:
+            - /script.sh
+          tty: true
+          stdin: true
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "0"
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: python
+            - name: RMR_SEED_RT
+              value: /opt/ric/config/uta-rtg.rt
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+            - name: RMR_RTG_SVC
+              value: # leave empty, so RMR works correctly with RT Manager Simulator
+          volumeMounts:
+            - mountPath: /script.sh
+              name: script
+            - mountPath: /opt/xApps
+              name: xapps
+            - mountPath: /opt/ric/config/uta-rtg.rt.in
+              name: uta-rtg
+      volumes:
+        - name: script
+          hostPath:
+            path: "{{ data_dir }}/volumes/scripts/python_xapp_runner.sh"
+            type: File
+        - name: xapps
+          hostPath:
+            path: "{{ data_dir }}/volumes/files/xApps"
+            type: Directory
+        - name: uta-rtg
+          hostPath:
+            path: "{{ data_dir }}/volumes/configs/routes.rtg"
+            type: File
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-xapp-runner
+  namespace: nearrtric
+spec:
+  type: ClusterIP
+  selector:
+    app: python-xapp-runner
+  ports:
+    - name: "4560"
+      protocol: TCP
+      port: 4560
+      targetPort: 4560
+    - name: "4561"
+      protocol: TCP
+      port: 4561
+      targetPort: 4561
+    - name: "4562"
+      protocol: TCP
+      port: 4562
+      targetPort: 4562
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: python-xapp-runner
+  namespace: nearrtric
+spec:
+  podSelector:
+    matchLabels:
+      app: python-xapp-runner
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: nearrtric
+      ports:
+        - protocol: TCP
+          port: 4560
+        - protocol: TCP
+          port: 4561
+        - protocol: TCP
+          port: 4562

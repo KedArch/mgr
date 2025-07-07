@@ -6,6 +6,7 @@
   with_items:
     - scripts
     - configs
+    - files
   when: manifests_clear is defined and manifests_clear
 
 - name: "Create directories"
@@ -16,6 +17,7 @@
   with_items:
     - scripts
     - configs
+    - files
 
 - name: "Copy script files"
   ansible.builtin.template:
@@ -32,3 +34,18 @@
     mode: "644"
   with_fileglob:
     - "{{ role_path }}/templates/regions/{{ region }}/configs/*"
+
+- name: "Find static files"
+  delegate_to: localhost
+  become: false
+  ansible.builtin.find:
+    paths: "{{ role_path }}/files/regions/{{ region }}"
+    file_type: any
+  register: files
+
+- name: "Copy static files"
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ data_dir }}/volumes/files"
+    mode: "644"
+  with_items: "{{ files.files }}"

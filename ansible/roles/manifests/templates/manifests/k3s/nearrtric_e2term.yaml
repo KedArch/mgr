@@ -96,9 +96,12 @@ spec:
       app: e2term
   ingress:
     - from:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: nearrtric
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: nearrtric
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: gnb
       ports:
         - protocol: SCTP
           port: 36421

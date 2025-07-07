@@ -12,6 +12,7 @@ from ricxappframe.e2ap.asn1 import IndicationMsg
 from .e2sm_kpm_module import e2sm_types, e2sm_kpm_module
 from .e2sm_rc_module import e2sm_rc_module
 
+import socket
 
 class SubscriptionWrapper(object):
     def __init__(self):
@@ -25,11 +26,11 @@ class xAppBase(object):
     def __init__(self, config=None, http_server_port=8090, rmr_port=4560, rmr_flags=0x00):
         super(xAppBase, self).__init__()
         # Default Config
-        self.xAPP_IP = "10.0.2.20"
+        self.xAPP_IP = socket.gethostbyname(socket.gethostname())
         self.MY_HTTP_SERVER_ADDRESS = "0.0.0.0"     # bind to all interfaces
         self.MY_HTTP_SERVER_PORT = http_server_port # web server listen port
         self.MY_RMR_PORT = rmr_port
-        self.SUB_MGR_URI = "http://10.0.2.13:8088/ric/v1"
+        self.SUB_MGR_URI = "http://submgr:8088/ric/v1"
         self.xapp_thread = None
 
         if config is not None:

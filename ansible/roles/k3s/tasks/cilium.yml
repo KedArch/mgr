@@ -55,6 +55,7 @@
     KUBECONFIG: creds/kubeconfig
   register: cilium
   failed_when: cilium is failed and "cannot re-use a name that is still in use" not in cilium.stderr
+  changed_when: cilium is not failed
 
 - name: "Enable hubble" # noqa: no-changed-when
   delegate_to: localhost
@@ -66,3 +67,4 @@
     KUBECONFIG: creds/kubeconfig
   register: hubble
   failed_when: hubble is failed and "another operation (install/upgrade/rollback) is in progress" not in hubble.stderr
+  changed_when: hubble is not failed

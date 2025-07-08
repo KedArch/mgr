@@ -1,4 +1,12 @@
 ---
+- name: "Set common parameters"
+  ansible.builtin.set_fact:
+    nomad_conf_path: "{{ nomad_root_path ~ '/nomad/conf' }}"
+    nomad_data_path: "{{ nomad_root_path ~ '/nomad/data' }}"
+    consul_conf_path: "{{ nomad_root_path ~ '/consul/conf' }}"
+    consul_data_path: "{{ nomad_root_path ~ '/consul/data' }}"
+    nomad_meta: "{{ lookup('community.general.merge_variables', 'nomad_.*_meta') | default({}) }}"
+
 - name: "Include task: uninstall"
   ansible.builtin.include_tasks: uninstall.yml
   when: nomad_uninstall is defined and nomad_uninstall

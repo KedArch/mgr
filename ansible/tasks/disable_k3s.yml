@@ -1,0 +1,15 @@
+---
+- name: "Remove Cilium interfaces and rules" # noqa: no-changed-when ignore-errors
+  ansible.builtin.shell:
+    cmd: "{{ item }}"
+  with_items:
+    - ip link delete cilium_host
+    - ip link delete cilium_net
+    - ip link delete cilium_vxlan
+    - iptables-save | grep -iv cilium | iptables-restore
+    - ip6tables-save | grep -iv cilium | ip6tables-restore
+  ignore_errors: true
+
+- name: "Disable k3s if running" # noqa: no-changed-when ignore-errors
+  ansible.builtin.command: k3s-killall.sh
+  ignore_errors: true

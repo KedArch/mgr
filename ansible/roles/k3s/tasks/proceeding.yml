@@ -78,3 +78,4 @@
   ansible.builtin.include_tasks: cilium.yml
   when: >
     (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
+

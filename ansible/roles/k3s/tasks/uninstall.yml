@@ -4,10 +4,8 @@
     path: /usr/local/bin/k3s
   register: k3s_binary
 
-- name: "Kill all k3s processes" # noqa: no-changed-when ignore-errors
-  ignore_errors: true
-  ansible.builtin.command: k3s-killall.sh
-  when: k3s_binary.stat.exists
+- name: "Kill all k3s processes"
+  ansible.builtin.include_tasks: tasks/disable_k3s.yml
 
 - name: "Uninstall k3s" # noqa: no-changed-when ignore-errors
   ignore_errors: true

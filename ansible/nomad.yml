@@ -3,9 +3,8 @@
   hosts: "{{ ansible_limit | default(['control', 'worker']) }}"
   become: true
   pre_tasks:
-    - name: "Disable k3s if running" # noqa: no-changed-when ignore-errors
-      ansible.builtin.command: k3s-killall.sh
-      ignore_errors: true
+    - name: "Disable k3s"
+      ansible.builtin.include_tasks: tasks/disable_k3s.yml
       when: nomad_uninstall is not defined or not nomad_uninstall
     - name: "Write state change to file"
       delegate_to: localhost

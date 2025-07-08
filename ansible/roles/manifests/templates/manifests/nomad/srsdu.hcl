@@ -38,6 +38,8 @@ job "srsdu" {
         image = "{{ host_internal_ip }}:5000/mgr/srsdu:latest"
         command = "/script.sh"
         force_pull = true
+        tty = true
+        interactive = true
         cap_add = ["net_raw", "net_admin"]
         ports = [
           "38472",

@@ -37,6 +37,8 @@ job "srscu" {
         image = "{{ host_internal_ip }}:5000/mgr/srscu:latest"
         command = "/script.sh"
         force_pull = true
+        tty = true
+        interactive = true
         cap_add = ["net_raw", "net_admin"]
         ports = [
           "38472",
@@ -49,20 +51,17 @@ job "srscu" {
       }
     }
 
-    task "nginx" {
+    task "udp-proxy" {
       driver = "docker"
       config {
-        image = "docker.io/library/nginx:latest"
-        cap_add = ["net_raw", "net_admin"]
+        image = "docker.io/alpine/socat:latest"
+        command = "socat -u UDP-LISTEN:2153,fork UDP:localhost:2152"
         ports = [
           "2152"
         ]
-        volumes = [
-          "{{ data_dir }}/volumes/configs/nginx.conf:/etc/nginx.conf"
-        ]
       }
     }
-        
+
     service {
       name = "srscu-f1ap-service"
       tags = ["clusterip", "internal"]

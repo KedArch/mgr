@@ -167,7 +167,7 @@ resource "local_file" "ansible_host_vars_files" {
 
   content = templatefile("${path.module}/vars.yml.tftpl",
     {
-      vars = try(each.value.vars, {})
+      vars = try(each.value.ansible_vars, "")
     }
   )
   filename = "../ansible/inventory/host_vars/${each.key}.yml"
@@ -177,7 +177,7 @@ resource "local_file" "ansible_group_vars_files" {
   for_each = var.group_vars
   content = templatefile("${path.module}/vars.yml.tftpl",
     {
-      vars = try(each.value, {})
+      vars = try(each.value.ansible_vars, "")
     }
   )
   filename = "../ansible/inventory/group_vars/${each.key}.yml"

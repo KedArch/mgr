@@ -37,12 +37,15 @@ variable "vms" {
     ip = string
     system_size = optional(number) # it is multiplied by 1024^3
     data_size = number # it is multiplied by 1024^3
-    vars = optional(map(string)) # ansible host_vars
+    ansible_vars = optional(string) # ansible host_vars
   })))
 }
 
 variable "group_vars" {
-  description = "Variables for ansible group_vars"
-  type = map(map(any))
+  description = "Variables for group_vars"
+  type = map(object({
+    vm_internal_network_interface = optional(string)
+    ansible_vars = optional(string)
+  }))
   default = {}
 }

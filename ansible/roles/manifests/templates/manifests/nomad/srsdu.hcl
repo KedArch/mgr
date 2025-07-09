@@ -36,7 +36,7 @@ job "srsdu" {
       }
       config {
         image = "{{ host_internal_ip }}:5000/mgr/srsdu:latest"
-        command = "/script.sh"
+        command = "/scripts/srsdu.sh"
         force_pull = true
         tty = true
         interactive = true
@@ -47,8 +47,8 @@ job "srsdu" {
           "nodeport-2000",
         ]
         volumes = [
-          "{{ data_dir }}/volumes/scripts/srsdu.sh:/script.sh",
-          "{{ data_dir }}/volumes/configs/srsdu.yaml.in:/etc/srsdu.yaml.in"
+          "{{ data_dir }}/volumes/scripts:/scripts",
+          "{{ data_dir }}/volumes/configs:/configs"
         ]
       }
     }

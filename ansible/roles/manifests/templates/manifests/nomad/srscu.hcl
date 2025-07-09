@@ -35,7 +35,7 @@ job "srscu" {
       }
       config {
         image = "{{ host_internal_ip }}:5000/mgr/srscu:latest"
-        command = "/script.sh"
+        command = "/scripts/srscu.sh"
         force_pull = true
         tty = true
         interactive = true
@@ -45,8 +45,8 @@ job "srscu" {
           "nodeport-2152",
         ]
         volumes = [
-          "{{ data_dir }}/volumes/scripts/srscu.sh:/script.sh",
-          "{{ data_dir }}/volumes/configs/srscu.yaml.in:/etc/srscu.yaml.in"
+          "{{ data_dir }}/volumes/scripts:/scripts",
+          "{{ data_dir }}/volumes/configs:/configs"
         ]
       }
     }
@@ -55,7 +55,11 @@ job "srscu" {
       driver = "docker"
       config {
         image = "docker.io/alpine/socat:latest"
-        command = "socat -u UDP-LISTEN:2153,fork UDP:localhost:2152"
+        args = [
+          "-u",
+          "UDP-LISTEN:2153,fork",
+          "UDP:localhost:2152"
+        ]
         ports = [
           "2152"
         ]

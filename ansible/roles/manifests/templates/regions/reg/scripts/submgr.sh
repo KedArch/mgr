@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-cp /opt/config/submgr-config.yaml{.in,}
-cp /opt/config/submgr-uta-rtg.rt{.in,}
+cp /configs/submgr.yaml /opt/config/submgr-config.yaml
+cp /configs/routes.rtg /opt/config/submgr-uta-rtg.rt
 CONTAINER_INTERNAL_IP="$(hostname -I)"
 export RMR_SRC_ID=$CONTAINER_INTERNAL_IP
 sed -i "s/SUBMGR_IP/$CONTAINER_INTERNAL_IP/g" /opt/config/submgr-config.yaml

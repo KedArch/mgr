@@ -33,7 +33,7 @@ spec:
           image: "{{ host_internal_ip }}:5000/srsran/ric_rtmgr_sim"
           imagePullPolicy: Always
           command: 
-            - /script.sh
+            - /scripts/rtmgr_sim.sh
           env:
             - name: CONTAINER_NAME
               value: ric_rtmgr
@@ -47,27 +47,21 @@ spec:
               value: /cfg/rtmgr-config.yaml
             - name: RMR_SEED_RT
               value: /opt/config/uta-rtg.rt
-            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w skrypcie
           volumeMounts:
-            - mountPath: /script.sh
-              name: script
-            - mountPath: /opt/rmsimulator/resources/configuration.yaml
-              name: configuration
-            - mountPath: /opt/config/uta-rtg.rt.in
-              name: uta-rtg
+            - mountPath: /scripts
+              name: scripts
+            - mountPath: /configs
+              name: configs
       volumes:
-        - name: script
+        - name: scripts
           hostPath:
-            path: "{{ data_dir }}/volumes/scripts/rtmgr_sim.sh"
-            type: File
-        - name: configuration
+            path: "{{ data_dir }}/volumes/scripts"
+            type: Directory
+        - name: configs
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/rtmgr.yaml"
-            type: File
-        - name: uta-rtg
-          hostPath:
-            path: "{{ data_dir }}/volumes/configs/routes.rtg"
-            type: File
+            path: "{{ data_dir }}/volumes/configs"
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

@@ -38,7 +38,7 @@ spec:
                 - NET_ADMIN
                 - NET_RAW
           command: 
-            - /script.sh
+            - /scripts/srsdu.sh
           stdin: true
           tty: true
           ports:
@@ -51,19 +51,19 @@ spec:
             - name: UE_ADDR
               value: "{{ hostvars[ue]['ansible_host'] }}"
           volumeMounts:
-            - mountPath: /script.sh
-              name: script
-            - mountPath: /etc/srsdu.yaml.in
-              name: config
+            - mountPath: /scripts
+              name: scripts
+            - mountPath: /configs
+              name: configs
       volumes:
-        - name: script
+        - name: scripts
           hostPath:
-            path: "{{ data_dir }}/volumes/scripts/srsdu.sh"
-            type: File
-        - name: config
+            path: "{{ data_dir }}/volumes/scripts"
+            type: Directory
+        - name: configs
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/srsdu.yaml"
-            type: File
+            path: "{{ data_dir }}/volumes/configs"
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-cp /opt/e2/config/config.conf{.in,}
-cp /opt/e2/dockerRouter.txt{.in,}
+cp /configs/e2term.conf /opt/e2/config/config.conf
+cp /configs/routes.rtg /opt/e2/dockerRouter.txt
 CONTAINER_INTERNAL_IP="$(hostname -I)"
 export RMR_SRC_ID=$CONTAINER_INTERNAL_IP
 sed -i "s/E2TERM_IP/$CONTAINER_INTERNAL_IP/g" /opt/e2/config/config.conf

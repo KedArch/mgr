@@ -35,7 +35,7 @@ spec:
           image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-e2"
           imagePullPolicy: Always
           command: 
-            - /script.sh
+            - /scripts/e2term.sh
           env:
             - name: CONTAINER_NAME
               value: ric_e2term
@@ -49,27 +49,21 @@ spec:
               value: "1"
             - name: RMR_SEED_RT
               value: /opt/e2/dockerRouter.txt
-            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w skrypcie
           volumeMounts:
-            - mountPath: /script.sh
-              name: script
-            - mountPath: /opt/e2/config/config.conf.in
-              name: configuration
-            - mountPath: /opt/e2/dockerRouter.txt.in
-              name: uta-rtg
+            - mountPath: /scripts
+              name: scripts
+            - mountPath: /configs
+              name: configs
       volumes:
-        - name: script
+        - name: scripts
           hostPath:
-            path: "{{ data_dir }}/volumes/scripts/e2term.sh"
-            type: File
-        - name: configuration
+            path: "{{ data_dir }}/volumes/scripts"
+            type: Directory
+        - name: configs
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/e2term.conf"
-            type: File
-        - name: uta-rtg
-          hostPath:
-            path: "{{ data_dir }}/volumes/configs/routes.rtg"
-            type: File
+            path: "{{ data_dir }}/volumes/configs"
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

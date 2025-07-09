@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cp /opt/ric/config/uta-rtg.rt{.in,}
+cp /configs/routes.rtg /opt/ric/config/uta-rtg.rt
 CONTAINER_INTERNAL_IP="$(hostname -I)"
 export RMR_SRC_ID=$CONTAINER_INTERNAL_IP
 sed -i "s/E2MGR_IP/$E2MGR_SERVICE_HOST/g" /opt/ric/config/uta-rtg.rt

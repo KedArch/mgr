@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-cp /opt/E2Manager/resources/configuration.yaml{.in,}
-cp /opt/E2Manager/router.txt{.in,}
+cp /configs/e2mgr.yaml /opt/E2Manager/resources/configuration.yaml
+cp /configs/routes.rtg /opt/E2Manager/router.txt
 CONTAINER_INTERNAL_IP="$(hostname -I)"
 export RMR_SRC_ID=$CONTAINER_INTERNAL_IP
 sed -i "s/RTMGR_IP/$RTMGR_SIM_SERVICE_HOST/g" /opt/E2Manager/resources/configuration.yaml

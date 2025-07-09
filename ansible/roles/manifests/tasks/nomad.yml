@@ -10,3 +10,4 @@
   ansible.builtin.command:
     cmd: "nomad job run {{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"
   when: manifest.changed
+  run_once: true

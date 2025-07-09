@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cp /etc/srscu.yaml{.in,}
+cp /configs/srscu.yaml /etc/srscu.yaml
 sed -i "s/AMF_ADDR/$AMF_ADDR/g" /etc/srscu.yaml
 CONTAINER_INTERNAL_IP="$(hostname -I)"
 sed -i "s/CORE_BIND_ADDR/$CONTAINER_INTERNAL_IP/g" /etc/srscu.yaml

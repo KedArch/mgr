@@ -38,7 +38,7 @@ spec:
                 - NET_ADMIN
                 - NET_RAW
           command:
-            - /script.sh
+            - /scripts/srscu.sh
           stdin: true
           tty: true
           ports:
@@ -48,10 +48,10 @@ spec:
             - name: AMF_ADDR
               value: "{{ hostvars[core]['ansible_host'] }}"
           volumeMounts:
-            - mountPath: /script.sh
-              name: script
-            - mountPath: /etc/srscu.yaml.in
-              name: config
+            - mountPath: /scripts
+              name: scripts
+            - mountPath: /configs
+              name: configs
         - name: udp-proxy
           image: alpine/socat
           command: 
@@ -62,14 +62,14 @@ spec:
           ports:
           - containerPort: 2153
       volumes:
-        - name: script
+        - name: scripts
           hostPath:
-            path: "{{ data_dir }}/volumes/scripts/srscu.sh"
-            type: File
-        - name: config
+            path: "{{ data_dir }}/volumes/scripts"
+            type: Directory
+        - name: configs
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/srscu.yaml"
-            type: File
+            path: "{{ data_dir }}/volumes/configs"
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

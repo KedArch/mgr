@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-cp /opt/ric/config/appmgr.yaml{.in,}
-cp /opt/ric/config/router.txt{.in,}
+mkdir -p /opt/ric/config
+cp /configs/appmgr.yaml /opt/ric/config/appmgr.yaml
+cp /configs/routes.rtg /opt/ric/config/router.txt
 CONTAINER_INTERNAL_IP="$(hostname -I)"
 export RMR_SRC_ID=$CONTAINER_INTERNAL_IP
 sed -i "s/DBAAS_IP/$DBAAS_SERVICE_HOST/g" /opt/ric/config/appmgr.yaml

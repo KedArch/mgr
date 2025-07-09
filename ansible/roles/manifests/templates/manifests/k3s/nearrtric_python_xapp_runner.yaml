@@ -36,7 +36,7 @@ spec:
           image: "{{ host_internal_ip }}:5000/srsran/python_xapp_runner"
           imagePullPolicy: Always
           command:
-            - /script.sh
+            - /scripts/python_xapp_runner.sh
           tty: true
           stdin: true
           env:
@@ -46,29 +46,23 @@ spec:
               value: python
             - name: RMR_SEED_RT
               value: /opt/ric/config/uta-rtg.rt
-            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
             - name: RMR_RTG_SVC
               value: # leave empty, so RMR works correctly with RT Manager Simulator
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w skrypcie
           volumeMounts:
-            - mountPath: /script.sh
-              name: script
-            - mountPath: /opt/xApps
-              name: xapps
-            - mountPath: /opt/ric/config/uta-rtg.rt.in
-              name: uta-rtg
+            - mountPath: /scripts
+              name: scripts
+            - mountPath: /configs
+              name: configs
       volumes:
-        - name: script
+        - name: scripts
           hostPath:
-            path: "{{ data_dir }}/volumes/scripts/python_xapp_runner.sh"
-            type: File
-        - name: xapps
-          hostPath:
-            path: "{{ data_dir }}/volumes/files/xApps"
+            path: "{{ data_dir }}/volumes/scripts"
             type: Directory
-        - name: uta-rtg
+        - name: configs
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/routes.rtg"
-            type: File
+            path: "{{ data_dir }}/volumes/configs"
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

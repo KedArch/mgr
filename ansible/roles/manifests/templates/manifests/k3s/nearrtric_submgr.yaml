@@ -35,7 +35,7 @@ spec:
           image: "{{ host_internal_ip }}:5000/o-ran-sc/ric-plt-submgr"
           imagePullPolicy: Always
           command: 
-            - /script.sh
+            - /scripts/submgr.sh
           env:
             - name: CONTAINER_NAME
               value: ric_submgr
@@ -49,27 +49,21 @@ spec:
               value: /opt/config/submgr-config.yaml
             - name: RMR_SEED_RT
               value: /opt/config/submgr-uta-rtg.rt
-            #- name: RMR_SRC_ID # IP kontenera ustanawiane w /script.sh
+            #- name: RMR_SRC_ID # IP kontenera ustanawiane w skrypcie
           volumeMounts:
-            - mountPath: /script.sh
-              name: script
-            - mountPath: /opt/config/submgr-config.yaml.in
-              name: configuration
-            - mountPath: /opt/config/submgr-uta-rtg.rt.in
-              name: uta-rtg
+            - mountPath: /scripts
+              name: scripts
+            - mountPath: /configs
+              name: configs
       volumes:
-        - name: script
+        - name: scripts
           hostPath:
-            path: "{{ data_dir }}/volumes/scripts/submgr.sh"
-            type: File
-        - name: configuration
+            path: "{{ data_dir }}/volumes/scripts"
+            type: Directory
+        - name: configs
           hostPath:
-            path: "{{ data_dir }}/volumes/configs/submgr.yaml"
-            type: File
-        - name: uta-rtg
-          hostPath:
-            path: "{{ data_dir }}/volumes/configs/routes.rtg"
-            type: File
+            path: "{{ data_dir }}/volumes/configs"
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

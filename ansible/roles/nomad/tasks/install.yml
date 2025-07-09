@@ -5,7 +5,7 @@
 - name: "Include task: paths"
   ansible.builtin.include_tasks: paths.yml
 
-- name: "Copy node config file"
+- name: "Copy node config files"
   ansible.builtin.template:
     src: "{{ item.template }}"
     dest: "{{ item.dest }}/node_config.hcl"
@@ -44,3 +44,7 @@
     - nomad
     - consul
     - docker
+
+- name: "Include task: cilium"
+  ansible.builtin.include_task: cilium.yml
+

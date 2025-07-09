@@ -1,0 +1,37 @@
+---
+- name: "Copy Cilium service file"
+  ansible.builtin.template:
+    src: "cilium.service"
+    dest: "/etc/systemd/system/cilium.service"
+    mode: "644"
+  register: config
+
+- name: "Start service"
+  ansible.builtin.systemd_service:
+    name: "cilium"
+    daemon_reload: true
+    state: "{{ 'restarted' if (config.changed or service.changed or docker.changed) else 'started' }}"
+  with_items:
+
+- name: "Ensure /opt/cni/ dirs exist"
+  ansible.builtin.file:
+    path: "/opt/cni/{{ item }}"
+    state: directory
+  with_items:
+    - config
+    - bin
+
+- name: "Copy cilium cni config"
+  ansible.builtin.template:
+    src: cilium.conflist
+    dest: /opt/cni/config/cilium.conflist
+    mode: "644"
+
+- name: "Ensure that the Cilium CNI binary is available in /opt/cni/bin"
+  ansible.builtin.command:
+    cmd: "{{ item }}"
+  with_items:
+    - >
+      docker run --rm --entrypoint bash -v /tmp:/out cilium/cilium:v1.13.1 -c
+      'cp /usr/bin/cilium* /out; cp /opt/cni/bin/cilium-cni /out'
+    - mv /tmp/cilium-cni /opt/cni/bin/cilium-cni

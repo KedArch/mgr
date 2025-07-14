@@ -52,7 +52,7 @@
   ansible.builtin.systemd_service:
     name: k3s
     state: "{{ 'restarted' if registry.changed else 'started' }}"
-    enabled: false
+    enabled: "{{ false if (k3s_enable is not defined or not k3s_enable) else true }}"
   when: >
     (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
     and (inventory_hostname in groups[k3s_cp_node_group])
@@ -61,7 +61,7 @@
   ansible.builtin.systemd_service:
     name: k3s-agent
     state: "{{ 'restarted' if registry.changed else 'started' }}"
-    enabled: false
+    enabled: "{{ false if (k3s_enable is not defined or not k3s_enable) else true }}"
   when: >
     (k3s_uninstall is not defined or not k3s_uninstall and k3s_binary.stat.exists)
     and (inventory_hostname in groups[k3s_worker_node_group])

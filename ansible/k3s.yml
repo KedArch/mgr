@@ -29,6 +29,7 @@
       when: skip_vms is not defined or not skip_vms
     - role: k3s
       vars:
+        k3s_enable: true
         k3s_root_path: "{{ data_dir }}"
         k3s_first_cp_node: "{{ first_cp_node }}"
         k3s_cp_node_group: "{{ cp_node_group }}"

@@ -6,6 +6,6 @@ k3s_cilium_hubble_cli_url: https://github.com/cilium/hubble/releases/download/{{
 k3s_cilium_version: 1.17.5
 k3s_cilium_install_params: --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" --set sctp.enabled=true
 k3s_default_cp_options:
-  - service-node-port-range 1024-10000
+  - service-node-port-range 1024-40000
   - flannel-backend none
   - disable-network-policy

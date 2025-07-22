@@ -183,16 +183,16 @@ group_vars = {
       worker_node_group: worker
       tc_latency: {
         'main': {
-          'reg': '100',
-          'edge': '500'
+          'reg': '50',
+          'edge': '60'
         },
         'reg': {
-          'main': '100',
-          'edge': '10'
+          'main': '50',
+          'edge': '5'
         },
         'edge': {
-          'main': '500',
-          'reg': '10'
+          'main': '60',
+          'reg': '5'
         }
       }
       vm_internal_network_interface: ens4

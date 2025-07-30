@@ -4,10 +4,12 @@
   pre_tasks:
     - name: "Include task: modify_host_vars"
       ansible.builtin.include_tasks: tasks/modify_host_vars.yml
+  vars:
+    ssh_host: "{{ first_cp_node if (host is not defined or not host) else host }}"
   tasks:
-    - name: Start a new tmux session for SSH port forwarding # noqa: no-changed-when ignore-errors
+    - name: "Start a new tmux session for SSH port forwarding to: {{ ssh_host }}" # noqa: no-changed-when ignore-errors
       vars:
-        node_ip: "{{ hostvars[first_cp_node]['ansible_host'] }}"
+        node_ip: "{{ hostvars[ssh_host]['ansible_host'] }}"
       ansible.builtin.shell: >
         $(tmux kill-session -t ssh_forwarding || true) &&
         tmux new-session -d -s ssh_forwarding

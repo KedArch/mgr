@@ -141,7 +141,7 @@ vms = {
   }
   "other" = {
     "ue" = {
-      vcpu = 2
+      vcpu = 4
       ram = 2048
       ip = "10.200.0.111"
       data_size = 10

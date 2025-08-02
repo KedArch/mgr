@@ -11,6 +11,7 @@
         - nomad
         - consul
         - docker
+        - cilium
       ignore_errors: true
       when: k3s_uninstall is not defined or not k3s_uninstall
     - name: "Clear firewall" # noqa: no-changed-when

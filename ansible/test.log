@@ -1,0 +1,56 @@
+NAME             CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+control-main-1   152m         7%       1631Mi          41%         
+control-main-2   141m         7%       1458Mi          37%         
+control-reg-1    133m         6%       1651Mi          42%         
+worker-edge-1    79m          1%       943Mi           11%         
+worker-edge-2    1137m        28%      2919Mi          36%         
+worker-main-1    122m         3%       3351Mi          42%         
+worker-main-2    72m          1%       1875Mi          23%         
+worker-reg-1     62m          1%       879Mi           11%         
+worker-reg-2     73m          1%       3007Mi          37%         
+control-main-1 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         4005704      874684      872944        2608     2258076     2883948
+Swap:              0           0           0
+ 18:52:51 up  4:18,  0 users,  load average: 0,47, 0,50, 0,52
+control-main-2 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         4005704      874472     1577052        2600     1554180     2891012
+Swap:              0           0           0
+ 18:52:51 up  4:19,  0 users,  load average: 0,55, 0,61, 0,50
+worker-edge-1 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         8127812      640836     5989168        3368     1497808     7229076
+Swap:              0           0           0
+ 18:52:51 up  4:19,  0 users,  load average: 0,42, 0,53, 0,42
+control-reg-1 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         4005704     1064080     1229204        2600     1712420     2700672
+Swap:              0           0           0
+ 18:52:52 up  4:19,  0 users,  load average: 0,27, 0,51, 0,50
+worker-edge-2 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         8127816     2858840     4063368        2808     1205608     5014212
+Swap:              0           0           0
+ 18:52:52 up  4:19,  0 users,  load average: 1,81, 1,60, 0,89
+worker-main-2 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         8127812     1403560     4762088        4036     1962164     6450428
+Swap:              0           0           0
+ 18:52:54 up  4:18,  0 users,  load average: 0,88, 1,62, 0,94
+worker-reg-1 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         8127812      731212     6065024        4228     1331576     7134324
+Swap:              0           0           0
+ 18:52:54 up  4:19,  0 users,  load average: 0,30, 0,41, 0,34
+worker-main-1 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         8127812     2935096     2926736        4884     2265980     4912880
+Swap:              0           0           0
+ 18:52:54 up  4:19,  0 users,  load average: 1,36, 2,06, 1,16
+worker-reg-2 | CHANGED | rc=0 >>
+               total        used        free      shared  buff/cache   available
+Mem:         8127820     2906580     3954164        4076     1267076     4957076
+Swap:              0           0           0
+ 18:52:54 up  4:19,  0 users,  load average: 0,93, 1,19, 0,70
+

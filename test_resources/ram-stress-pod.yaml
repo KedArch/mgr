@@ -18,5 +18,5 @@ spec:
       limits:
         memory: "8Gi"
         cpu: "1000m"
-    command: ["sh", "-c", "while true; do total_memory=$(LANG=C free -m | awk '/^Mem:/{print $2}'); target_memory=$(($total_memory * 95 / 100)); a=$(cat /dev/zero | tr '\0' 'a' | head -c ${target_memory}M); done"]
+    command: ["sh", "-c", "while true; do total_memory=$(LANG=C free -m | awk '/^Mem:/{print $2}'); target_memory=$(($total_memory * 95 / 100)); a=$(cat /dev/zero | tr '\0' 'a' | head -c ${target_memory}m); done"]
   restartPolicy: Never

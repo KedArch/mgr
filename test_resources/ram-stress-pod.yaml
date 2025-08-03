@@ -3,6 +3,11 @@ kind: Pod
 metadata:
   name: ram-stress-pod
 spec:
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
   containers:
   - name: ram-stress
     image: busybox

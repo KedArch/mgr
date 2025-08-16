@@ -9,14 +9,13 @@ spec:
       value: "true"
       effect: "NoSchedule"
   containers:
-  - name: ram-stress
-    image: busybox
-    resources:
-      requests:
-        memory: "100Mi"
-        cpu: "100m"
-      limits:
-        memory: "8Gi"
-        cpu: "1000m"
-    command: ["sh", "-c", "while true; do total_memory=$(LANG=C free -m | awk '/^Mem:/{print $2}'); target_memory=$(($total_memory * 95 / 100)); a=$(cat /dev/zero | tr '\0' 'a' | head -c ${target_memory}m); done"]
+    - name: ram-stress
+      image: 10.200.0.1:5000/ram_stress
+      resources:
+        requests:
+          memory: "100Mi"
+          cpu: "100m"
+        limits:
+          memory: "8Gi"
+          cpu: "1000m"
   restartPolicy: Never

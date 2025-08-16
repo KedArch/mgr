@@ -9,15 +9,14 @@ spec:
       value: "true"
       effect: "NoSchedule"
   containers:
-  - name: cpu-stress
-    image: busybox
-    resources:
-      requests:
-        memory: "100Mi"
-        cpu: "100m"
-      limits:
-        memory: "200Mi"
-        cpu: "4000m"
-    command: ["sh", "-c", "while true; do :; done"]
+    - name: cpu-stress
+      image: 10.200.0.1:5000/cpu_stress
+      resources:
+        requests:
+          memory: "100Mi"
+          cpu: "100m"
+        limits:
+          memory: "200Mi"
+          cpu: "4000m"
   restartPolicy: Never
 

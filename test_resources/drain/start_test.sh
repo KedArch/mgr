@@ -32,14 +32,14 @@ control_node() {
   ETCD_LEADER_ID=$($ETCDCTL endpoint status | cut -d ',' -f 2,9 | grep true | cut -d ',' -f 1)
   CONTROL_NODE=$($ETCDCTL member list | grep $ETCD_LEADER_ID | cut -d ',' -f 3 | sed "s/\(.*\)-[0-9a-f]\{8\}/\1/")
   CONTROL_NODE_IP=$(get_control_node_ip $CONTROL_NODE)
-  scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))../container_failure/find_logs.py" "$REMOTE_USER@$CONTROL_NODE_IP:"
+  scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))../common/find_logs.py" "$REMOTE_USER@$CONTROL_NODE_IP:"
   if [ $? -ne 0 ]; then
     echo "Error sending script to control node."
     exit 1
   fi
 }
 
-scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))../container_failure/find_logs.py" "$REMOTE_USER@$REMOTE_HOST:"
+scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))../common/find_logs.py" "$REMOTE_USER@$REMOTE_HOST:"
 if [ $? -ne 0 ]; then
   echo "Error sending script to node."
   exit 1

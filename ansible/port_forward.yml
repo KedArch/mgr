@@ -13,5 +13,5 @@
       ansible.builtin.shell: >
         $(tmux kill-session -t ssh_forwarding || true) &&
         tmux new-session -d -s ssh_forwarding
-        "ssh -N -L 6443:{{ node_ip }}:6443 -L 8500:{{ node_ip }}:8500 -L 4646:{{ node_ip }}:4646
+        "ssh -N -L 6443:{{ node_ip }}:6443 -L 2379:{{ node_ip }}:2379 -L 8500:{{ node_ip }}:8500 -L 4646:{{ node_ip }}:4646
         {{ hostvars['host']['ansible_user'] }}@{{ hostvars['host']['ansible_host'] }}"

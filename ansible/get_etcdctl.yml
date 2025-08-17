@@ -1,0 +1,56 @@
+- name: "Get etcdctl and certs"
+  hosts: localhost
+  become: false
+  vars:
+    etcd_tar_url: https://github.com/etcd-io/etcd/releases/download/v3.6.4/etcd-v3.6.4-linux-amd64.tar.gz
+  tasks:
+    - name: "Ensure dirs exist"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "755"
+      with_items:
+        - bin
+        - cache
+    - name: "Get etcdctl"
+      ansible.builtin.get_url:
+        url: "{{ etcd_tar_url }}"
+        dest: cache/etcd.tar.gz
+        mode: "644"
+    - name: "Unpack ectdctl"
+      ansible.builtin.unarchive:
+        src: cache/etcd.tar.gz
+        dest: bin
+        include:
+          - "*/etcdctl"
+        extra_opts:
+          - --strip-components=1
+          - --wildcards
+    - name: "Get etcd certs from {{ first_cp_node }}"
+      delegate_to: "{{ first_cp_node }}"
+      become: true
+      ansible.builtin.slurp:
+        path: "{{ item }}"
+      with_items:
+        - "{{ data_dir }}/rancher/data/server/tls/etcd/server-ca.crt"
+        - "{{ data_dir }}/rancher/data/server/tls/etcd/server-client.crt"
+        - "{{ data_dir }}/rancher/data/server/tls/etcd/server-client.key"
+      register: config
+    - name: "Save etcd creds"
+      no_log: true
+      ansible.builtin.copy:
+        content: "{{ item.content | b64decode | trim }}"
+        dest: "creds/etcd-{{ item.item | basename }}"
+        mode: "0640"
+      loop: "{{ config.results }}"
+    - name: "Create wrapper"
+      ansible.builtin.copy:
+        dest: "bin/etcdctl-wrapper"
+        content: |
+          #!/bin/bash
+          ETCDCTL_CACERT=$(dirname $(realpath $0))/../creds/etcd-server-ca.crt
+          ETCDCTL_CERT=$(dirname $(realpath $0))/../creds/etcd-server-client.crt
+          ETCDCTL_KEY=$(dirname $(realpath $0))/../creds/etcd-server-client.key
+
+          $(dirname $(realpath $0))/etcdctl --cacert=$ETCDCTL_CACERT --cert=$ETCDCTL_CERT --key=$ETCDCTL_KEY "$@"
+        mode: "755"

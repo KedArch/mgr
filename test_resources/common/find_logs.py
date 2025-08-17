@@ -31,6 +31,7 @@ def find_first_matches_after_time(log_file, reference_time_str, patterns):
         try:
             result = subprocess.run(['journalctl', '--no-pager',
                                      '--since', reference_time_str,
+                                     '--output=cat',
                                      #'--output=short-precise',
                                      '-u', log_file],
                                     stdout=subprocess.PIPE,

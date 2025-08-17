@@ -51,6 +51,8 @@
           ETCDCTL_CACERT=$(dirname $(realpath $0))/../creds/etcd-server-ca.crt
           ETCDCTL_CERT=$(dirname $(realpath $0))/../creds/etcd-server-client.crt
           ETCDCTL_KEY=$(dirname $(realpath $0))/../creds/etcd-server-client.key
+          ETCD_ENDPOINTS="https://127.0.0.1:2379,https://127.0.0.1:2389,https://127.0.0.1:2399"
 
-          $(dirname $(realpath $0))/etcdctl --cacert=$ETCDCTL_CACERT --cert=$ETCDCTL_CERT --key=$ETCDCTL_KEY "$@"
+          $(dirname $(realpath $0))/etcdctl --cacert=$ETCDCTL_CACERT --cert=$ETCDCTL_CERT \
+            --key=$ETCDCTL_KEY --endpoints="$ETCD_ENDPOINTS" "$@"
         mode: "755"

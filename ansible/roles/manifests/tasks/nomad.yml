@@ -9,5 +9,5 @@
 - name: "Apply manifest: {{ item | basename }}" # noqa: no-changed-when no-handler
   ansible.builtin.command:
     cmd: "nomad job run {{ data_dir }}/manifests/{{ manifests_orchestrator }}/{{ item | basename }}"
-  when: manifest.changed or manifests_force is defined and manifests_force
+  when: manifest.changed or manifests_force is defined and manifests_force | bool
   run_once: true

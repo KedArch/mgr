@@ -17,14 +17,14 @@ NO_OF_MEASURMENTS=15
 
 get_control_node_ip() {
   if [ $1 == 'control-main-1' ]; then
-    return 10.200.0.11
+    echo "10.200.0.11"
   elif [ $1 == 'control-main-2' ]; then
-    return 10.200.0.12
+    echo "10.200.0.12"
   elif [ $1 == 'control-reg-1' ]; then
-    return 10.200.0.21
+    echo "10.200.0.21"
   else
     echo "No control node with that name"
-    exit 1
+    return 1
   fi
 }
 
@@ -32,6 +32,7 @@ control_node() {
   ETCD_LEADER_ID=$($ETCDCTL endpoint status | cut -d ',' -f 2,9 | grep true | cut -d ',' -f 1)
   CONTROL_NODE=$($ETCDCTL member list | grep $ETCD_LEADER_ID | cut -d ',' -f 3 | sed "s/\(.*\)-[0-9a-f]\{8\}/\1/")
   CONTROL_NODE_IP=$(get_control_node_ip $CONTROL_NODE)
+  # CONTROL_NODE_IP="10.200.0.11"
   scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))/../common/find_logs.py" "$REMOTE_USER@$CONTROL_NODE_IP:"
   if [ $? -ne 0 ]; then
     echo "Error sending script to control node."
@@ -60,9 +61,9 @@ EOF
 while [ $measurment -le $NO_OF_MEASURMENTS ]; do
 
 echo Measurment $measurment
-fail=false
 
 DATE=$(date +"%Y-%m-%d %H:%M:%S.%6N")
+echo $DATE
 
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST" << EOF
   sudo cp "$REMOTE_LOG_FILE" $(basename $REMOTE_LOG_FILE)-old
@@ -71,37 +72,44 @@ EOF
 kubectl drain --ignore-daemonsets --delete-emptydir-data $NODE
 
 while ! kubectl get pods -n $NAMESPACE --field-selector=status.phase!=Running 2>&1 | grep "No resources found"; do
+    echo Waiting...
     sleep 1
 done
 
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST" << EOF
   sudo diff $(basename $REMOTE_LOG_FILE)-old "$REMOTE_LOG_FILE" | grep '^>' | sed 's/^> //' > $(basename $REMOTE_LOG_FILE)-diff
+  echo "Checking containerd logs"
   sudo python3 find_logs.py "$DATE" "$(basename $REMOTE_LOG_FILE)-diff" containerd-drain.csv "StopContainer"
+  echo "Checking agent logs"
   sudo python3 find_logs.py "$DATE" k3s-agent.service agent-drain.csv "operationExecutor.UnmountVolume"
 EOF
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$CONTROL_NODE_IP" << EOF
+  echo "Checking server logs"
   sudo python3 find_logs.py "$DATE" k3s.service server-drain.csv "\"Successfully synced\" key=\"$NODE\""
 EOF
 
 DATE=$(date +"%Y-%m-%d %H:%M:%S.%6N")
+echo $DATE
 
 kubectl uncordon $NODE
 sleep 1
 kubectl rollout restart deployment -n $NAMESPACE
-kubectl rollout restart statefulset -n $NAMESPACE
 kubectl rollout status deployment -n $NAMESPACE
-kubectl rollout status statefulset -n $NAMESPACE
 
 while ! kubectl get pods -n $NAMESPACE --field-selector=status.phase!=Running 2>&1 | grep "No resources found"; do
+    echo Waiting...
     sleep 1
 done
 
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST" << EOF
   sudo diff $(basename $REMOTE_LOG_FILE)-old "$REMOTE_LOG_FILE" | grep '^>' | sed 's/^> //' > $(basename $REMOTE_LOG_FILE)-diff
+  echo "Checking containerd logs"
   sudo python3 find_logs.py "$DATE" "$(basename $REMOTE_LOG_FILE)-diff" containerd-drain.csv "operationExecutor.VerifyControllerAttachedVolume"
+  echo "Checking agent logs"
   sudo python3 find_logs.py "$DATE" k3s-agent.service agent-drain.csv "RunPodSandbox for"
 EOF
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$CONTROL_NODE_IP" << EOF
+  echo "Checking server logs"
   sudo python3 find_logs.py "$DATE" k3s.service server-drain.csv "\"Successfully synced\" key=\"$NODE\""
 EOF
 
@@ -110,6 +118,7 @@ measurment=$((measurment + 1))
 done
 
 DATE=$(date +"%Y-%m-%d %H:%M:%S.%6N")
+echo $DATE
 
 mkdir -p test
 scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:containerd_drain.csv" "containerd_drain_$DATE.csv"

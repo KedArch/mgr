@@ -61,14 +61,14 @@ fi
 measurment=1
 
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST" << EOF
-  rm containerd-drain.csv agent-drain.csv
-  rm containerd-uncordon.csv agent-uncordon.csv
+  rm containerd_drain.csv agent_drain.csv
+  rm containerd_uncordon.csv agent_uncordon.csv
 EOF
 for node in $CONTROL_NODES; do
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node" << EOF
   echo $node
-  rm server-drain.csv
-  rm server-uncordon.csv
+  rm server_drain.csv
+  rm server_uncordon.csv
 EOF
 done
 
@@ -93,9 +93,9 @@ done
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST" << EOF
   sudo diff $(basename $REMOTE_LOG_FILE)-old "$REMOTE_LOG_FILE" | grep '^>' | sed 's/^> //' > $(basename $REMOTE_LOG_FILE)-diff
   echo "Checking containerd logs"
-  sudo python3 find_logs.py "$DATE" "$(basename $REMOTE_LOG_FILE)-diff" containerd-drain.csv "StopContainer"
+  sudo python3 find_logs.py "$DATE" "$(basename $REMOTE_LOG_FILE)-diff" containerd_drain.csv "StopContainer"
   echo "Checking agent logs"
-  sudo python3 find_logs.py "$DATE" k3s-agent.service agent-drain.csv "operationExecutor.UnmountVolume"
+  sudo python3 find_logs.py "$DATE" k3s-agent.service agent_drain.csv "operationExecutor.UnmountVolume"
 EOF
 if [ $? -ne 0 ]; then
   echo "Error when retrieving agent logs"
@@ -105,7 +105,7 @@ state=bad
 for node in $CONTROL_NODES; do
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node" << EOF
   echo "Checking server logs: $node"
-  sudo python3 find_logs.py "$DATE" k3s.service server-drain.csv "\"Successfully synced\" key=\"$NODE\""
+  sudo python3 find_logs.py "$DATE" k3s.service server_drain.csv "\"Successfully synced\" key=\"$NODE\""
 EOF
 if [ $? -eq 0 ]; then
   state=good
@@ -136,9 +136,9 @@ done
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST" << EOF
   sudo diff $(basename $REMOTE_LOG_FILE)-old "$REMOTE_LOG_FILE" | grep '^>' | sed 's/^> //' > $(basename $REMOTE_LOG_FILE)-diff
   echo "Checking containerd logs"
-  sudo python3 find_logs.py "$DATE" "$(basename $REMOTE_LOG_FILE)-diff" containerd-uncordon.csv "RunPodSandbox for"
+  sudo python3 find_logs.py "$DATE" "$(basename $REMOTE_LOG_FILE)-diff" containerd_uncordon.csv "RunPodSandbox for"
   echo "Checking agent logs"
-  sudo python3 find_logs.py "$DATE" k3s-agent.service agent-uncordon.csv "operationExecutor.VerifyControllerAttachedVolume"
+  sudo python3 find_logs.py "$DATE" k3s-agent.service agent_uncordon.csv "operationExecutor.VerifyControllerAttachedVolume"
 EOF
 if [ $? -ne 0 ]; then
   echo "Error when retrieving agent logs"
@@ -148,7 +148,7 @@ state=bad
 for node in $CONTROL_NODES; do
 ssh -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node" << EOF
   echo "Checking server logs: $node"
-  sudo python3 find_logs.py "$DATE" k3s.service server-uncordon.csv "\"Successfully synced\" key=\"$NODE\""
+  sudo python3 find_logs.py "$DATE" k3s.service server_uncordon.csv "\"Successfully synced\" key=\"$NODE\""
 EOF
 if [ $? -eq 0 ]; then
   state=good
@@ -163,15 +163,15 @@ measurment=$((measurment + 1))
 
 done
 
-DATE=$(date +"%Y-%m-%d %H:%M:%S.%6N")
+DATE=$(date +"%Y-%m-%dT%H:%M:%S.%6N")
 echo $DATE
 
 mkdir -p test
-scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:containerd_drain.csv" "containerd_drain_$DATE.csv"
-scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:containerd_uncordon.csv" "containerd_uncordon_$DATE.csv"
-scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:agent_drain.csv" "agent_drain_$DATE.csv"
-scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:agent_uncordon.csv" "agent_uncordon_$DATE.csv"
+scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:containerd_drain.csv" "test/containerd_drain_$DATE.csv"
+scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:containerd_uncordon.csv" "test/containerd_uncordon_$DATE.csv"
+scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:agent_drain.csv" "test/agent_drain_$DATE.csv"
+scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$REMOTE_HOST:agent_uncordon.csv" "test/agent_uncordon_$DATE.csv"
 for node in $CONTROL_NODES; do
-  scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node:server_drain.csv" "server_drain_$node_$DATE.csv"
-  scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node:server_uncordon.csv" "server_uncordon_$node_$DATE.csv"
+  scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node:server_drain.csv" "test/server_drain_$node\_$DATE.csv"
+  scp -J "$JUMP_HOST" $SSH_ARGS "$REMOTE_USER@$node:server_uncordon.csv" "test/server_uncordon_$node\_$DATE.csv"
 done

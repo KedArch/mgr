@@ -17,7 +17,7 @@ NO_OF_MEASURMENTS=15
 
 kubectl patch deployment $DEPLOYMENT -n $NAMESPACE --type='json' -p="[{\"op\": \"replace\", \"path\": \"/spec/template/spec/nodeName\", \"value\": \"$NODE\"}]"
 
-scp -J "$JUMP_HOST" $SSH_ARGS "../common/find_logs.py" "$REMOTE_HOST:"
+scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))/../common/find_logs.py" "$REMOTE_HOST:"
 if [ $? -ne 0 ]; then
   echo "Error sending script."
   exit 1

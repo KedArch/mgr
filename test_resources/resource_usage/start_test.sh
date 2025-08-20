@@ -5,14 +5,14 @@ export ANSIBLE_STDOUT_CALLBACK=ansible.posix.json
 
 NO_OF_MEASURMENTS=15
 
-# for i in nonrtric nearrtric gnb; do
-#   for j in $(kubectl -n $i get deployment | sed "1d" | cut -d ' ' -f 1); do
-#     kubectl -n $i scale deployment --replicas=0 $j
-#   done
-#   for j in $(kubectl -n $i get statefulset | sed "1d" | cut -d ' ' -f 1); do
-#     kubectl -n $i scale statefulset --replicas=0 $j
-#   done
-# done
+for i in nonrtric nearrtric gnb; do
+  for j in $(kubectl -n $i get deployment | sed "1d" | cut -d ' ' -f 1); do
+    kubectl -n $i scale deployment --replicas=0 $j
+  done
+  for j in $(kubectl -n $i get statefulset | sed "1d" | cut -d ' ' -f 1); do
+    kubectl -n $i scale statefulset --replicas=0 $j
+  done
+done
 
 mkdir -p test
 

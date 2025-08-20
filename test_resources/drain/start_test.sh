@@ -74,6 +74,8 @@ done
 
 while [ $measurment -le $NO_OF_MEASURMENTS ]; do
 
+sleep 30
+
 echo Measurment $measurment
 
 DATE=$(date +"%Y-%m-%d %H:%M:%S.%6N")
@@ -115,6 +117,8 @@ if [ $state == bad ]; then
   echo "Error when retrieving server logs"
   exit 1
 fi
+
+sleep 30
 
 DATE=$(date +"%Y-%m-%d %H:%M:%S.%6N")
 echo $DATE

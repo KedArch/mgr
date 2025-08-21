@@ -1,4 +1,4 @@
-FROM busybox:latest
+FROM docker.io/library/bash:latest
 
 COPY cpu_stress.sh .
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cleanup() {
     for job in $(jobs -p); do
         kill "$job" 2>/dev/null

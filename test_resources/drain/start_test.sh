@@ -16,30 +16,6 @@ REMOTE_LOG_FILE="/opt/rancher/data/agent/containerd/containerd.log"
 CONTROL_NODES="10.200.0.11 10.200.0.12 10.200.0.21"
 NO_OF_MEASURMENTS=15
 
-# get_control_node_ip() {
-#   if [ $1 == 'control-main-1' ]; then
-#     echo "10.200.0.11"
-#   elif [ $1 == 'control-main-2' ]; then
-#     echo "10.200.0.12"
-#   elif [ $1 == 'control-reg-1' ]; then
-#     echo "10.200.0.21"
-#   else
-#     echo "No control node with that name"
-#     return 1
-#   fi
-# }
-#
-# etcd_control_node() {
-#   ETCD_LEADER_ID=$($ETCDCTL endpoint status | cut -d ',' -f 2,9 | grep true | cut -d ',' -f 1)
-#   CONTROL_NODE=$($ETCDCTL member list | grep $ETCD_LEADER_ID | cut -d ',' -f 3 | sed "s/\(.*\)-[0-9a-f]\{8\}/\1/")
-#   CONTROL_NODE_IP=$(get_control_node_ip $CONTROL_NODE)
-#   scp -J "$JUMP_HOST" $SSH_ARGS "$(dirname $(realpath $0))/../common/find_logs.py" "$REMOTE_USER@$CONTROL_NODE_IP:"
-#   if [ $? -ne 0 ]; then
-#     echo "Error sending script to control node."
-#     exit 1
-#   fi
-# }
-
 kubectl uncordon $NODE
 kubectl rollout restart deployment -n $NAMESPACE
 kubectl rollout status deployment -n $NAMESPACE

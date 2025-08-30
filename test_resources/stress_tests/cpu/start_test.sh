@@ -78,10 +78,3 @@ done
 mkdir -p test
 cpu_test $REMOTE_HOST_CP
 cpu_test $REMOTE_HOST_W
-
-for i in $(ls test/$REMOTE_HOST_CP*); do
-  awk '{ sum += $1; count++ } END { if (count > 0) print sum / count }' test/$i > test/result_$REMOTE_HOST_CP
-done
-for i in $(ls test/$REMOTE_HOST_W*); do
-  awk '{ sum += $1; count++ } END { if (count > 0) print sum / count }' test/$i > test/result_$REMOTE_HOST_W
-done

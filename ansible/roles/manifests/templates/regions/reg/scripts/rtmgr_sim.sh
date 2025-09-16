@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-/opt/config
+mkdir -p /opt/config
 cp /configs/rtmgr.yaml /opt/rmsimulator/resources/configuration.yaml
 cp /configs/routes.rtg /opt/config/uta-rtg.rt
 CONTAINER_INTERNAL_IP="$(hostname -I)"

@@ -37,6 +37,7 @@ spec:
           imagePullPolicy: Always
           command:
             - /scripts/python_xapp_runner.sh
+            - bash
           tty: true
           stdin: true
           env:
@@ -54,6 +55,8 @@ spec:
               name: scripts
             - mountPath: /configs
               name: configs
+            - mountPath: /opt/xApps
+              name: xapps
       volumes:
         - name: scripts
           hostPath:
@@ -62,6 +65,10 @@ spec:
         - name: configs
           hostPath:
             path: "{{ data_dir }}/volumes/configs"
+            type: Directory
+        - name: xapps
+          hostPath:
+            path: "{{ data_dir }}/volumes/files/xApps/python"
             type: Directory
 ---
 apiVersion: v1

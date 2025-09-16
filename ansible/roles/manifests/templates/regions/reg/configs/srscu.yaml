@@ -10,7 +10,7 @@ cu_cp:
               - sst: 1
   f1ap:
     bind_addr: 0.0.0.0
-  inactivity_timer: 60 #7200
+  inactivity_timer: 7200
 cu_up:
   f1u:
     socket:
@@ -27,4 +27,13 @@ e2:
   addr: e2term.nearrtric.svc.cluster.local
   port: 36421
   bind_addr: 0.0.0.0
-
+log:
+  e2ap_level: debug
+metrics:
+  enable_log: false
+  enable_json: false
+  periodicity:
+    cu_up_report_period: 1000
+    cu_cp_report_period: 1000
+  layers:
+    enable_pdcp: false
